@@ -116,6 +116,7 @@ class MarkovTextGeneratorTest {
             assertTrue(markovTextGenerator.getAlphabet().contains('x'),"x was not added to the alphabet");
             assertFalse(markovTextGenerator.getAlphabet().contains('j'),"j was not removed from the alphabet");
         }
+
     }
 
 }
