@@ -1,33 +1,32 @@
-package net.joeclark;
+package net.joeclark.proceduralgeneration;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NameBlender {
+public class MarkovTextGenerator implements RandomTextGenerator {
 
     private int datasetLength;
     private int order;
     private float prior;
-    private Set<Character> alphabet = new HashSet<Character>();
+    private Set<Character> alphabet = new HashSet<>();
 
 
-    public NameBlender(Stream<String> rawNames) {
+    public MarkovTextGenerator(Stream<String> rawNames) {
         this(rawNames,1,0.005F); // sensible defaults?
     }
-    public NameBlender(Stream<String> rawNames, int order, float prior) {
+    public MarkovTextGenerator(Stream<String> rawNames, int order, float prior) {
         this.order = order;
         this.prior = prior;
         this.datasetLength = (int) rawNames
-                .map(n -> n.toLowerCase())
+                .map(String::toLowerCase)
                 .peek( n -> this.alphabet.addAll(n.chars().mapToObj(s->(char)s).collect(Collectors.toList())))
                 .count();
         System.out.println(alphabet);
     }
 
-    public String generateName() {
+    public String generateText() {
         return "Chester";
     }
 
