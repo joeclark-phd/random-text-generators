@@ -41,6 +41,12 @@ class MarkovTextGeneratorTest {
         }
 
         @Test
+        @DisplayName("knows it hasn't been trained")
+        void knowsItHasntBeenTrained() {
+            assertFalse(markovTextGenerator.isTrained(), "reports that it HAS been trained");
+        }
+
+        @Test
         @DisplayName("should throw exception if asked for a name")
         void shouldReturnNullName() {
             assertThrows(IllegalStateException.class,markovTextGenerator::generateOne,"didn't throw exception when asked for a name untrained");
@@ -52,6 +58,7 @@ class MarkovTextGeneratorTest {
             int initialDatasetLength = markovTextGenerator.getDatasetLength();
             markovTextGenerator.train(names.stream());
             assertNotEquals(markovTextGenerator.getDatasetLength(),initialDatasetLength,"datasetLength did not increase through training");
+            assertTrue(markovTextGenerator.isTrained(),"reports that it hasn't been trained");
         }
 
     }
@@ -81,7 +88,8 @@ class MarkovTextGeneratorTest {
         @Test
         @DisplayName("knows it has been trained")
         void knowsItHasTrained() {
-            assertEquals(4, markovTextGenerator.getDatasetLength(), "Didn't get the length of the stream right");
+            assertEquals(names.size(), markovTextGenerator.getDatasetLength(), "Didn't get the length of the stream right");
+            assertTrue(markovTextGenerator.isTrained(),"reports that it hasn't been trained");
         }
 
         @Test
@@ -103,6 +111,12 @@ class MarkovTextGeneratorTest {
         }
 
         @Test
+        @DisplayName("knows it has been trained")
+        void knowsItHasTrained() {
+            assertTrue(markovTextGenerator.isTrained(),"reports that it hasn't been trained");
+        }
+
+        @Test
         @DisplayName("infers the alphabet from the input")
         void inferAlphabetFromInput() {
             assertTrue(markovTextGenerator.getAlphabet().contains('j'),"Alphabet doesn't contain lower-case j");
@@ -116,6 +130,40 @@ class MarkovTextGeneratorTest {
             assertTrue(markovTextGenerator.getAlphabet().contains('x'),"x was not added to the alphabet");
             assertFalse(markovTextGenerator.getAlphabet().contains('j'),"j was not removed from the alphabet");
         }
+
+        @Test
+        @DisplayName("correctly tallies first-order observations")
+        void countsFirstOrderObservations() {
+            assertEquals(Arrays.asList('j','j','j','j'),markovTextGenerator.getObservations().get("#"), "should have observed lowercase j four times for '#'");
+        }
+
+        @Test
+        @DisplayName("correctly tallies third-order observations")
+        void countsThirdOrderObservations() {
+            markovTextGenerator.setOrder(3);
+            assertEquals(Arrays.asList('j','j','j','j'),markovTextGenerator.getObservations().get("###"), "should have observed lowercase j four times for '###'");
+        }
+
+        @Test
+        @DisplayName("random characters are drawn from the training alphabet")
+        void randomCharactersAreDrawnFromAlphabet() {
+            Character c = markovTextGenerator.randomCharacter("##j");
+            assertTrue(markovTextGenerator.getAlphabet().contains(c),"Random character '"+c+"' not in training alphabet");
+            assertFalse(c=='!',"randomCharacter() got to the end of its loop without finding a model");
+        }
+
+    }
+
+    @Nested
+    @DisplayName("randomly generated names")
+    class RandomlyGeneratedNames {
+
+        @Test
+        @DisplayName("tend to be different")
+        void knowsItHasTrained() {
+            assertTrue(false,"test not written yet");
+        }
+
 
     }
 
