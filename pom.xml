@@ -6,8 +6,36 @@
 
     <groupId>net.joeclark.proceduralgeneration</groupId>
     <artifactId>randomtextgenerators</artifactId>
-    <name>Random Text Generators by joeclark.net</name>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Random Text Generators by joeclark.net</name>
+    <description>An interface and implementation of procedural random text generation that can be used, for example, to generate character or place names for an adventure game.</description>
+    <url>https://github.com/joeclark-phd/random-text-generators</url>
+
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Joseph Clark</name>
+            <email>joe@joeclark.net</email>
+            <organization>Sandy River Software</organization>
+            <organizationUrl>https://github.com/joeclark-phd</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/joeclark-phd/random-text-generators.git</connection>
+        <developerConnection>scm:git:ssh://github.com:joeclark-phd/random-text-generators.git</developerConnection>
+        <url>https://github.com/joeclark-phd/random-text-generators</url>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

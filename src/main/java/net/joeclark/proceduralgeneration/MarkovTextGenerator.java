@@ -139,7 +139,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
         float sumOfWeights = bestModel.values().stream().reduce(0.0F, (a,b) -> a+b);
         float randomRoll = sumOfWeights * (float) Math.random();
         for(Character c: bestModel.keySet()) {
-            if (randomRoll >= bestModel.get(c)) {
+            if (randomRoll > bestModel.get(c)) {
                 randomRoll -= bestModel.get(c);
             } else {
                 return c;

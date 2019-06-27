@@ -6,6 +6,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -156,7 +163,7 @@ class MarkovTextGeneratorTest {
         void randomCharactersAreDrawnFromAlphabet() {
             Character c = markovTextGenerator.randomCharacter("##j");
             assertTrue(markovTextGenerator.getAlphabet().contains(c),"Random character '"+c+"' not in training alphabet");
-            assertFalse(c=='!',"randomCharacter() got to the end of its loop without finding a model");
+            assertNotEquals('!', (char) c, "randomCharacter() got to the end of its loop without finding a model");
         }
 
     }
@@ -203,5 +210,28 @@ class MarkovTextGeneratorTest {
 
 
     }
+
+    @Test
+    @DisplayName("can be instantiated from a file")
+    void canBeInstantiatedWithAFile() {
+        String fileName = "src/test/resources/romans.txt";
+        System.out.println(Paths.get(fileName));
+        try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            new MarkovTextGenerator(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @DisplayName("can be instantiated by streaming a resource")
+    void canBeInstantiatedByStreamingResource() {
+        try(Stream<String> stream = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/romans.txt"))).lines()) {
+            new MarkovTextGenerator(stream);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
