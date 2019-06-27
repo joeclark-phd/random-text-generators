@@ -72,7 +72,7 @@ Setting the endsWith parameter to "a" filters out some passably female-sounding 
     galla
     esdranicola
 
-An alternative strategy is simply to train the generator on a single-sex dataset.  Here for example are the results of training the generator with a file of female Viking names (/src/test/resources/vikings_female.txt).  The **MarkovTextGenerator** automatically inferred the alphabet from the training data including all of the special Scandinavian characters.
+An alternative strategy is simply to train the generator on a single-sex dataset.  Here for example are the results of training the generator with a file of female Viking names (/src/test/resources/vikings_female.txt).  The **MarkovTextGenerator** automatically inferred the alphabet from the training data including special Scandinavian characters that aren't on my keyboard.
     
     øviyrsa
     holm
