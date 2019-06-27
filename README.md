@@ -13,3 +13,89 @@ Currently there is only a single implementation of the interface: **MarkovTextGe
 
 **MarkovTextGenerator** is based on an algorithm described by JLund3 at: http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme
 and my own implementation of it in Python which can be found at https://github.com/joeclark-phd/roguestate/blob/master/program/namegen.py.
+
+## Examples
+
+With **MarkovTextGenerator** trained on a file of ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
+
+    caelis
+    potiti
+    venatius
+    nentius
+    caranoratus
+    domidus
+    cerius
+    octovergilio
+    soceanus
+    melus
+    pilianus
+    petrentius
+    favenaeus
+    lucia
+    sily
+    naso
+    herenialio
+    surus
+    eulo
+    fulcherialio
+    recunobaro
+    caelius
+    wasyllvianus
+    atric
+    dula
+ 
+Setting the endsWith parameter to "a" filters out some passably female-sounding names.  ("ia","na", and "la" are also good filters):
+
+    thea
+    tertia
+    nigelasca
+    cellasca
+    mercuribosma
+    supera
+    lasca
+    vagnenna
+    verula
+    limeta
+    variwawrzma
+    juba
+    armina
+    ocessanga
+    juba
+    vediskozma
+    lucia
+    salatera
+    cimylla
+    pulcita
+    isarina
+    critula
+    pulcita
+    galla
+    esdranicola
+
+An alternative strategy is simply to train the generator on a single-sex dataset.  Here for example are the results of training the generator with a file of female Viking names (/src/test/resources/vikings_female.txt).  The **MarkovTextGenerator** automatically inferred the alphabet from the training data including all of the special Scandinavian characters.
+    
+    øviyrsa
+    holm
+    drid
+    halla
+    tonna
+    freyngtdrun
+    grelod
+    asvid
+    fastrid
+    hild
+    geirhild
+    ingeltorg
+    thorhild
+    hallgeot
+    sibergljot
+    drid
+    sæurijorgärd
+    kiti
+    ingulfrid
+    hard
+    gudland
+    inga
+    ginna
+    ingrta
+    skuld

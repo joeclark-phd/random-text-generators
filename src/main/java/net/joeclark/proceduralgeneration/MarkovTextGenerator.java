@@ -12,10 +12,10 @@ import java.util.stream.Stream;
 public class MarkovTextGenerator implements RandomTextGenerator {
 
     static final int DEFAULT_ORDER = 3;
-    static final float DEFAULT_PRIOR = 0.01F;
+    static final float DEFAULT_PRIOR = 0.005F;
     private static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
-    public static final int DEFAULT_MIN_LENGTH = 3;
-    public static final int DEFAULT_MAX_LENGTH = 20;
+    public static final int DEFAULT_MIN_LENGTH = 4;
+    public static final int DEFAULT_MAX_LENGTH = 12;
 
     private int datasetLength;
     private int order;
@@ -121,7 +121,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     ((startsWith == null) ? false : (newName.indexOf(CONTROL_CHAR+startsWith) == -1)) ||
                     ((endsWith == null) ? false : (newName.indexOf(endsWith+CONTROL_CHAR) == -1))
             );
-            System.out.println(newName.substring(order,newName.length()-1));
+            //System.out.println(newName.substring(order,newName.length()-1));
             return newName.substring(order, newName.length() - 1); // strip off control characters
         }
     }
