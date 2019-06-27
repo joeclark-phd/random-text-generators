@@ -72,30 +72,31 @@ Setting the endsWith parameter to "a" filters out some passably female-sounding 
     galla
     esdranicola
 
-An alternative strategy is simply to train the generator on a single-sex dataset.  Here for example are the results of training the generator with a file of female Viking names (/src/test/resources/vikings_female.txt).  The **MarkovTextGenerator** automatically inferred the alphabet from the training data including special Scandinavian characters that aren't on my keyboard.
+An alternative strategy is simply to train the generator on a single-sex dataset.  Here on the left, for example, are the results of training the generator with a file of female Viking names (/src/test/resources/vikings_female.txt), and on the right, a generator trained on male Viking names (/src/test/resources/vikings_male.txt).  The **MarkovTextGenerator** automatically inferred the alphabet from the training data including special Scandinavian characters that aren't on my keyboard.
     
-    øviyrsa
-    holm
-    drid
-    halla
-    tonna
-    freyngtdrun
-    grelod
-    asvid
-    fastrid
-    hild
-    geirhild
-    ingeltorg
-    thorhild
-    hallgeot
-    sibergljot
-    drid
-    sæurijorgärd
-    kiti
-    ingulfrid
-    hard
-    gudland
-    inga
-    ginna
-    ingrta
-    skuld
+    FEMALE:             MALE:
+    øviyrsa             sigfast
+    holm                osvid
+    drid                vald
+    halla               hæmingjal
+    tonna               boel
+    freyngtdrun         hundi
+    grelod              kætilbisld
+    asvid               sumarlid
+    fastrid             kveldun
+    hild                wary
+    geirhild            sjägfiæmund
+    ingeltorg           orleif
+    thorhild            iorn
+    hallgeot            hersi
+    sibergljot          øpir
+    drid                solmsteinund
+    sæurijorgärd        sumävf
+    kiti                slärdar
+    ingulfrid           kjxim
+    hard                soälverkvott
+    gudland             sigfus
+    inga                torsteinth
+    ginna               spjut
+    ingrta              hromund
+    skuld               assur
