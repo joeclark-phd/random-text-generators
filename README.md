@@ -16,7 +16,7 @@ and my own prior [implementation of it in Python](https://github.com/joeclark-ph
 
 ## Examples
 
-With **MarkovTextGenerator** trained on a file of ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
+With **MarkovTextGenerator** trained on a file of 1360 ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
 
     caelis
     potiti
@@ -72,7 +72,7 @@ Setting the endsWith parameter to "a" filters out some passably female-sounding 
     galla
     esdranicola
 
-An alternative strategy is simply to train the generator on a single-sex dataset.  Here on the left, for example, are the results of training the generator with a file of female Viking names (/src/test/resources/vikings_female.txt), and on the right, a generator trained on male Viking names (/src/test/resources/vikings_male.txt).  The **MarkovTextGenerator** automatically inferred the alphabet from the training data including special Scandinavian characters that aren't on my keyboard.
+An alternative strategy is simply to train the generator on a single-sex dataset.  Here on the left, for example, are the results of training the generator with a file of 146 female Viking names (/src/test/resources/vikings_female.txt), and on the right, a generator trained on 498 male Viking names (/src/test/resources/vikings_male.txt).
     
     FEMALE:             MALE:
     øviyrsa             sigfast
@@ -100,3 +100,5 @@ An alternative strategy is simply to train the generator on a single-sex dataset
     ginna               spjut
     ingrta              hromund
     skuld               assur
+    
+Note that the **MarkovTextGenerator** automatically infers an alphabet from the training data, including Scandinavian characters that aren't on my keyboard.
