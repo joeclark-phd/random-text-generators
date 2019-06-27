@@ -18,34 +18,35 @@ and my own prior [implementation of it in Python](https://github.com/joeclark-ph
 
 With **MarkovTextGenerator** trained on a file of 1360 ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
 
-    caelis          domidus          pilianus       naso             recunobaro  
-    potiti          cerius           petrentius     herenialio       caelius     
-    venatius        octovergilio     favenaeus      surus            wasyllvianus
-    nentius         soceanus         lucia          eulo             atric       
-    caranoratus     melus            sily           fulcherialio     dula        
+    caelis           domidus          pilianus        naso             recunobaro  
+    potiti           cerius           petrentius      herenialio       caelius     
+    venatius         octovergilio     favenaeus       surus            wasyllvianus
+    nentius          soceanus         lucia           eulo             atric       
+    caranoratus      melus            sily            fulcherialio     dula        
  
 Setting the endsWith parameter to "a" filters out some passably female-sounding names.  ("ia","na", and "la" are also good filters):
 
-    thea             supera       variwawrzma     vediskozma     isarina    
-    tertia           lasca        juba            lucia          critula    
-    nigelasca        vagnenna     armina          salatera       pulcita    
-    cellasca         verula       ocessanga       cimylla        galla      
-    mercuribosma     limeta       juba            pulcita        esdranicola
+    thea             supera           variwawrzma     vediskozma       isarina    
+    tertia           lasca            juba            lucia            critula    
+    nigelasca        vagnenna         armina          salatera         pulcita    
+    cellasca         verula           ocessanga       cimylla          galla      
+    mercuribosma     limeta           juba            pulcita          esdranicola
 
 An alternative strategy is simply to train the generator on a single-sex dataset.  Here on the left, for example, are the results of training the generator with a file of 146 female Viking names (/src/test/resources/vikings_female.txt), and on the right, a generator trained on 498 male Viking names (/src/test/resources/vikings_male.txt).
     
-    FEMALE:                                     MALE:
-    øviyrsa        thorhild                     iorn             sigfast
-    holm           hallgeot                     hersi            osvid
-    drid           sibergljot                   øpir             vald
-    halla          drid                         solmsteinund     hæmingjal
-    tonna          sæurijorgärd                 sumävf           boel
-    freyngtdrun    kiti                         slärdar          hundi
-    grelod         ingulfrid                    kjxim            kætilbisld
-    asvid          hard                         soälverkvott     sumarlid
-    fastrid        gudland                      sigfus           kveldun
-    hild           inga                         torsteinth       wary
-    geirhild       ginna                        spjut            sjägfiæmund
-    ingeltorg      ingrta                       hromund          orleif
+    FEMALE:                                           MALE:
+    
+    øviyrsa          thorhild                         iorn             sigfast
+    holm             hallgeot                         hersi            osvid
+    drid             sibergljot                       øpir             vald
+    halla            drid                             solmsteinund     hæmingjal
+    tonna            sæurijorgärd                     sumävf           boel
+    freyngtdrun      kiti                             slärdar          hundi
+    grelod           ingulfrid                        kjxim            kætilbisld
+    asvid            hard                             soälverkvott     sumarlid
+    fastrid          gudland                          sigfus           kveldun
+    hild             inga                             torsteinth       wary
+    geirhild         ginna                            spjut            sjägfiæmund
+    ingeltorg        ingrta                           hromund          orleif
     
 Note that the **MarkovTextGenerator** automatically infers an alphabet from the training data, including Scandinavian characters that aren't on my keyboard.
