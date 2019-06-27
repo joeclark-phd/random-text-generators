@@ -14,6 +14,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     static final int DEFAULT_ORDER = 3;
     static final float DEFAULT_PRIOR = 0.01F;
     private static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
+    public static final int DEFAULT_MIN_LENGTH = 3;
+    public static final int DEFAULT_MAX_LENGTH = 20;
 
     private int datasetLength;
     private int order;
@@ -59,6 +61,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
         datasetLength = (int) rawWords
                 .map(String::toLowerCase)
+                .map(String::trim)
                 .peek( w -> this.alphabet.addAll(w.chars().mapToObj(s->(char)s).collect(Collectors.toList())))
                 .peek(this::analyzeWord)
                 .count();
@@ -93,12 +96,33 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
     }
 
-    public String generateOne() throws IllegalStateException {
+    public String generateOne() {
+        return generateOne(DEFAULT_MIN_LENGTH, DEFAULT_MAX_LENGTH,null,null);  // defaults
+    }
+    public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) throws IllegalStateException {
         if(datasetLength==0) {
             throw new IllegalStateException("model has not yet been trained");
         } else {
-            // TODO: now generate a real random name!
-            return "Chester";
+            StringBuilder newName = new StringBuilder();
+            do {
+                newName.delete(0,newName.length());
+                for (int i = 0; i < order; i++) {
+                    newName.append(CONTROL_CHAR);
+                }
+
+                do {
+                    Character nextChar = randomCharacter(newName.substring(newName.length() - order));
+                    newName.append(nextChar);
+                } while (newName.charAt(newName.length() - 1) != CONTROL_CHAR);
+            } while(
+                    // conditions for a re-roll
+                    (newName.length() < minLength+order+1) ||
+                    (newName.length() > maxLength+order+1) ||
+                    ((startsWith == null) ? false : (newName.indexOf(CONTROL_CHAR+startsWith) == -1)) ||
+                    ((endsWith == null) ? false : (newName.indexOf(endsWith+CONTROL_CHAR) == -1))
+            );
+            System.out.println(newName.substring(order,newName.length()-1));
+            return newName.substring(order, newName.length() - 1); // strip off control characters
         }
     }
 
@@ -118,7 +142,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             if (randomRoll >= bestModel.get(c)) {
                 randomRoll -= bestModel.get(c);
             } else {
-                System.out.println(c);
                 return c;
             }
         }

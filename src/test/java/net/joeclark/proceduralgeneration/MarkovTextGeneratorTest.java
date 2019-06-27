@@ -17,6 +17,13 @@ class MarkovTextGeneratorTest {
 
     MarkovTextGenerator markovTextGenerator;
     List<String> names = Arrays.asList("John", "Jane", "Jeremy", "Jeffrey");
+    List<String> moreNames = Arrays.asList(
+            "Aphrodite","Artemis","Athena","Apollo","Ares","Demeter","Dionysus","Hades","Hephaestus","Hermes",
+            "Hestia","Poseidon","Zeus","Coeus","Crius","Cronus","Hyperion","Iapetus","Mnemosyne","Oceanus","Phoebe",
+            "Rhea","Tethys","Theia","Themis","Asteria","Astraeus","Atlas","Aura","Clymene","Dione","Helios","Selene",
+            "Eos","Epimetheus","Eurybia","Eurynome","Lelantos","Leto","Menoetius","Metis","Ophion","Pallas","Perses",
+            "Prometheus","Styx" // from wikipedia's list of greek mythological figures
+    );
 
     @Test
     @DisplayName("can be instantiated with its no-argument constructor")
@@ -158,10 +165,40 @@ class MarkovTextGeneratorTest {
     @DisplayName("randomly generated names")
     class RandomlyGeneratedNames {
 
+        @BeforeEach
+        void createInstanceWithStream() {
+            markovTextGenerator = new MarkovTextGenerator(moreNames.stream());
+        }
+
         @Test
         @DisplayName("tend to be different")
-        void knowsItHasTrained() {
-            assertTrue(false,"test not written yet");
+        void tendToBeDifferent() {
+            // this test can fail due to legitimate randomness and should not be used in production
+            String name1 = markovTextGenerator.generateOne();
+            String name2 = markovTextGenerator.generateOne();
+            String name3 = markovTextGenerator.generateOne();
+            assertFalse((name1 == name2) && (name1 == name3),"three random names in a row were identical. this is possible with a small training set, but shouldn't happen often.  try running the test again.");
+        }
+
+        @Test
+        @DisplayName("can be specified to start with a given string")
+        void canStartWithGivenString() {
+            String name = markovTextGenerator.generateOne(MarkovTextGenerator.DEFAULT_MIN_LENGTH,MarkovTextGenerator.DEFAULT_MAX_LENGTH,"z",null);
+            assertTrue(name.startsWith("z"),"random name didn't start with given string");
+        }
+
+        @Test
+        @DisplayName("can be specified to end with a given string")
+        void canEndWithGivenString() {
+            String name = markovTextGenerator.generateOne(MarkovTextGenerator.DEFAULT_MIN_LENGTH,MarkovTextGenerator.DEFAULT_MAX_LENGTH,null,"eus");
+            assertTrue(name.endsWith("eus"),"random name didn't end with given string");
+        }
+
+        @Test
+        @DisplayName("can be held to a specified length range")
+        void canBeHeldToSpecifiedLengthRange() {
+            String name = markovTextGenerator.generateOne(5,6,null,null);
+            assertTrue(name.length()>=5 && name.length()<=6,"name was not in specified length range");
         }
 
 
