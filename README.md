@@ -11,8 +11,8 @@ Currently there is only a single implementation of the interface: **MarkovTextGe
 - The result is new strings that sound like they belong in the training set.  So if you feed it a dataset of ancient Greek names, you'll get new, original names that sound like they fit into that genre.
 - A Bayesian prior is defined so that every character sequence in the alphabet of the training data has a small chance of occurring even if it doesn't occur in the training data; thereby injecting some true randomness and making up for possibly limited training data.
 
-**MarkovTextGenerator** is based on an algorithm described by JLund3 at: http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme
-and my own implementation of it in Python which can be found at https://github.com/joeclark-phd/roguestate/blob/master/program/namegen.py.
+**MarkovTextGenerator** is based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme)
+and my own prior [implementation of it in Python](https://github.com/joeclark-phd/roguestate/blob/master/program/namegen.py).
 
 ## Examples
 
