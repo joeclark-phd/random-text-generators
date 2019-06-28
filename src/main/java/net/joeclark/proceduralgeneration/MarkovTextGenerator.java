@@ -19,7 +19,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
     private int datasetLength;
     private int order;
-    private float prior;
+    private float prior; // todo: change this to a double so no "cast" is necessary when dealing with the random number
     private Set<Character> alphabet = new HashSet<>();
     private Map<String, List<Character>> observations = new HashMap<>();
     private Map<String, Map<Character,Float>> model = new HashMap<>();
