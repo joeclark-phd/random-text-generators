@@ -175,15 +175,15 @@ class MarkovTextGeneratorTest {
             markovTextGenerator = new MarkovTextGenerator(moreNames.stream());
         }
 
-        @Test
-        @DisplayName("tend to be different")
-        void tendToBeDifferent() {
-            // this test can fail due to legitimate randomness and should not be used in production
-            String name1 = markovTextGenerator.generateOne();
-            String name2 = markovTextGenerator.generateOne();
-            String name3 = markovTextGenerator.generateOne();
-            assertFalse((name1 == name2) && (name1 == name3),"three random names in a row were identical. this is possible with a small training set, but shouldn't happen often.  try running the test again.");
-        }
+//        @Test
+//        @DisplayName("tend to be different")
+//        void tendToBeDifferent() {
+//            // this test can fail due to legitimate randomness and should not be used in production
+//            String name1 = markovTextGenerator.generateOne();
+//            String name2 = markovTextGenerator.generateOne();
+//            String name3 = markovTextGenerator.generateOne();
+//            assertFalse((name1 == name2) && (name1 == name3),"three random names in a row were identical. this is possible with a small training set, but shouldn't happen often.  try running the test again.");
+//        }
 
         @Test
         @DisplayName("can be specified to start with a given string")
@@ -228,82 +228,6 @@ class MarkovTextGeneratorTest {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    @DisplayName("produces good Roman-sounding names")
-    void producesGoodRomanNames() {
-        // this is a qualitative test, printing names to console for the developer to judge
-        String fileName = "src/test/resources/romans.txt";
-
-        try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            MarkovTextGenerator romanMarkov = new MarkovTextGenerator(stream);
-            System.out.println("ROMAN NAMES:");
-            for(int i=0;i<10;i++) {
-                System.out.println(romanMarkov.generateOne());
-            }
-            System.out.println();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    @DisplayName("produces good Roman female names")
-    void producesGoodRomanFemaleNames() {
-        // this is a qualitative test, printing names to console for the developer to judge
-        String fileName = "src/test/resources/romans.txt";
-
-        try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            MarkovTextGenerator romanMarkov = new MarkovTextGenerator(stream);
-            System.out.println("ROMAN FEMALE NAMES:");
-            for(int i=0;i<10;i++) {
-                System.out.println(romanMarkov.generateOne(4,12,null,"a"));
-            }
-            System.out.println();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    @DisplayName("produces good Viking male names")
-    void producesGoodVikingMaleNames() {
-        // this is a qualitative test, printing names to console for the developer to judge
-        String fileName = "src/test/resources/vikings_male.txt";
-
-        try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            MarkovTextGenerator romanMarkov = new MarkovTextGenerator(stream);
-            System.out.println("VIKING MALE NAMES:");
-            for(int i=0;i<10;i++) {
-                System.out.println(romanMarkov.generateOne());
-            }
-            System.out.println();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    @DisplayName("produces good Viking female names")
-    void producesGoodVikingFemaleNames() {
-        // this is a qualitative test, printing names to console for the developer to judge
-        String fileName = "src/test/resources/vikings_female.txt";
-
-        try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            MarkovTextGenerator romanMarkov = new MarkovTextGenerator(stream);
-            System.out.println("VIKING FEMALE NAMES:");
-            for(int i=0;i<10;i++) {
-                System.out.println(romanMarkov.generateOne());
-            }
-            System.out.println();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
 }
