@@ -13,9 +13,9 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
     static final int DEFAULT_ORDER = 3;
     static final float DEFAULT_PRIOR = 0.005F;
-    private static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
-    public static final int DEFAULT_MIN_LENGTH = 4;
-    public static final int DEFAULT_MAX_LENGTH = 12;
+    static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
+    static final int DEFAULT_MIN_LENGTH = 4;
+    static final int DEFAULT_MAX_LENGTH = 12;
 
     private int datasetLength;
     private int order;
@@ -79,7 +79,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             model.put(k,relativeProbabilities);
         });
         // model is now populated
-
     }
 
     // used in training, runs once for each String in the training set to add to the observations map
