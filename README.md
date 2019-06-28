@@ -18,7 +18,7 @@ and my own prior [implementation of it in Python](https://github.com/joeclark-ph
 
 If you have Java 8 and Maven installed:
 
-    git clone https://github.com/joeclark-net/random-text-generators
+    git clone https://github.com/joeclark-net/random-text-generators.git
     
     cd random-text-generators
 
