@@ -14,6 +14,16 @@ Currently there is only a single implementation of the interface: **MarkovTextGe
 **MarkovTextGenerator** is based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme)
 and my own prior [implementation of it in Python](https://github.com/joeclark-phd/roguestate/blob/master/program/namegen.py).
 
+## How to build and test
+
+If you have Java 8 and Maven installed:
+
+    git clone https://github.com/joeclark-net/random-text-generators
+    
+    cd random-text-generators
+
+    mvn test
+
 ## Examples
 
 With **MarkovTextGenerator** trained on a file of 1360 ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
