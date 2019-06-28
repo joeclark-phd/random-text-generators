@@ -2,29 +2,38 @@
 
 This package defines an interface and implementation of a procedural random text generator that can be used, for example, to generate character or place names for an adventure game.
 
-The interface, **RandomTextGenerator**, could be used with more than one type of procedural generation method.
+## RandomTextGenerator
 
-Currently there is only a single implementation of the interface: **MarkovTextGenerator**.  
+The interface, **RandomTextGenerator**, could be used with more than one type of procedural generation method.  Its sole method is:
+ 
+- `String generateOne()` yields a new, procedurally-generated text string.
 
-- That class ingests a stream of String data (for example, from a file) and trains a multiple-order Markov chain model on that data.  
-- New strings are generated randomly based on the statistical frequencies of character sequences in the training data. So, for example, if the training data contains lots of occurrences of "th", the letter "t" will be followed by "h" in many of the random strings.
-- The result is new strings that sound like they belong in the training set.  So if you feed it a dataset of ancient Greek names, you'll get new, original names that sound like they fit into that genre.
-- A Bayesian prior is defined so that every character sequence in the alphabet of the training data has a small chance of occurring even if it doesn't occur in the training data; thereby injecting some true randomness and making up for possibly limited training data.
+Currently there is only a single implementation of the interface: 
 
-**MarkovTextGenerator** is based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme)
-and my own prior [implementation of it in Python](https://github.com/joeclark-phd/roguestate/blob/master/program/namegen.py).
+### MarkovTextGenerator
+
+The big idea of Markov-chain random text generation is that you collect statistics on which characters follow other characters.  So if a particular language uses "th" a lot, "t" should often be followed by "h" in the randomly-generated text.  This class ingests a `Stream<String>` of training data to build up a Markov model, and uses it to generate new strings. However, this method has a number of caveats:
+
+First, looking only at two-character sequences isn't very sophisticated. The model would be smarter if you looked back more than one letter.  For example, your model could know that "ot" and "nt" are often followed by "h" but "st" is not. The problem with that is that you will have far fewer examples of every 3-character, 4-character, or n-character sequences in your training data than you will have of 2-character sequences.  If a sequence never occurs in your training data, it can never occur in your output.  Second, the fewer examples in the training set, the less random the names will be.
+
+Based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme),  which I previously [implemented in Python](https://github.com/joeclark-phd/roguestate/blob/master/program/namegen.py), MarkovTextGenerator mitigates these issues in a couple of ways:
+
+- It develops models of multiple "orders", that is, of multiple lengths of character sequences.  If the generator encounters a new sequence of three characters like "jav", it will first check if it has trained a model on that sequence.  If not, it will fall back to check if it has a model for "av", failing that, it will certainly have a model for what comes after "v".  I call this a 3rd-order model and it is the default.
+
+- A Bayesian prior probability is added to every character in the alphabet in every model, so some truly random character sequences not seen in the training data are possible.  The alphabet is inferred from the training data, so any UTF-8 characters should be possible.  Increase the default "prior" to increase the randomness.
+
 
 ## How to build and test
 
 If you have Java 8 and Maven installed:
 
     git clone https://github.com/joeclark-net/random-text-generators.git
-    
     cd random-text-generators
-
     mvn test
 
 ## Examples
+
+I've built another project to run examples of output.  You can find it here: [joeclark-net/procedural-generation-examples](https://github.com/joeclark-phd/procedural-generation-examples)
 
 With **MarkovTextGenerator** trained on a file of 1360 ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
 
@@ -42,7 +51,7 @@ Setting the endsWith parameter to "a" filters out some passably female-sounding 
     cellasca         verula           ocessanga       cimylla          galla      
     mercuribosma     limeta           juba            pulcita          esdranicola
 
-An alternative strategy is simply to train the generator on a single-sex dataset.  Here on the left, for example, are the results of training the generator with a file of 146 female Viking names (/src/test/resources/vikings_female.txt), and on the right, a generator trained on 498 male Viking names (/src/test/resources/vikings_male.txt).
+An alternative strategy is simply to train the generator on a single-sex dataset.  Here on the left, for example, are the results of training the generator with a file of 146 female Viking names, and on the right, a generator trained on 498 male Viking names.  (These training data can be found in [joeclark-net/procedural-generation-examples](https://github.com/joeclark-phd/procedural-generation-examples).)
     
     FEMALE:                                           MALE:
     
