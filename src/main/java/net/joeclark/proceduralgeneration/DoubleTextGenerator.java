@@ -60,7 +60,7 @@ public class DoubleTextGenerator implements RandomTextGenerator {
     @Override
     public String generateOne() {
         return firstStringGenerator.generateOne( firstMin, firstMax, firstStart, firstEnd ) + separator +
-                secondStringGenerator.generateOne( secondMin, secondMax, secondStart, secondStart );
+                secondStringGenerator.generateOne( secondMin, secondMax, secondStart, secondEnd );
     }
 
     @Override

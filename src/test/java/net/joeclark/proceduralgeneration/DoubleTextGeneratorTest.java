@@ -58,14 +58,7 @@ class DoubleTextGeneratorTest {
             assertTrue(name.contains("-"),"random name didn't contain the separator string");
         }
 
-        @Test
-        @DisplayName("Generates a bunch of names")
-        void generatesABunchOfNames() {
-            // todo: delete this test
-            for(int i=0;i<25;i++) {
-                System.out.println(doubleTextGenerator.generateOne());
-            }
-        }
+
     }
 
 

@@ -88,19 +88,22 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      */
     public void train(Stream<String> rawWords) {
 
+        datasetLength = 0;
         alphabet.clear();
         alphabet.add(CONTROL_CHAR);
         observations.clear();
         model.clear();
 
-        datasetLength = (int) rawWords
-                .map(String::toLowerCase)
+        rawWords.map(String::toLowerCase)
                 .map(String::trim)
-                .peek( w -> this.alphabet.addAll(w.chars().mapToObj(s->(char)s).collect(Collectors.toList())))
-                .peek(this::analyzeWord)
-                .count();
+                .forEach( w -> {
+                    this.alphabet.addAll(w.chars().mapToObj(s->(char)s).collect(Collectors.toList()));
+                    analyzeWord(w);
+                    datasetLength += 1;
+                });
         // alphabet is now populated
         // observations map is now populated
+        // datasetLength is now set
 
         observations.entrySet().forEach( s -> {
             String k = s.getKey();
@@ -108,7 +111,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     .collect(Collectors.groupingBy(c->c,Collectors.counting()));
             Map<Character,Double> relativeProbabilities = new HashMap<>();
             alphabet.forEach( a -> {
-                relativeProbabilities.put(a, frequencies.containsKey(a) ? (double)frequencies.get(a) : prior);
+                relativeProbabilities.put(a, frequencies.containsKey(a) ? (double) frequencies.get(a) : prior);
             });
             model.put(k,relativeProbabilities);
         });
@@ -117,12 +120,13 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
     // used in training, runs once for each String in the training set to add to the observations map
     private void analyzeWord(String word) {
-        word = word + CONTROL_CHAR;
+        StringBuilder wordb = new StringBuilder(word);
+        wordb.append(CONTROL_CHAR);
         for(int o=1;o<=order;o++) {
-            word = CONTROL_CHAR + word;
-            for (int i = 0; i < word.length() - o; i++) {
-                String prefix = word.substring(i, i + o);
-                Character suffix = word.charAt(i + o);
+            wordb.insert(0,CONTROL_CHAR);
+            for (int i = 0; i < wordb.length() - o; i++) {
+                String prefix = wordb.substring(i, i + o);
+                Character suffix = wordb.charAt(i + o);
                 observations.computeIfAbsent(prefix, k -> new ArrayList<>()).add(suffix);
             }
         }
@@ -133,7 +137,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return a random string with a (default) length of 4 to 12 characters.
      * @throws IllegalStateException if model has not been trained
      */
-    public String generateOne() throws IllegalStateException {
+    public String generateOne() {
         return generateOne(DEFAULT_MIN_LENGTH, DEFAULT_MAX_LENGTH,null,null);  // defaults
     }
 
@@ -151,7 +155,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return a random string according to your specifications
      * @throws IllegalStateException if model has not been trained
      */
-    public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) throws IllegalStateException {
+    public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) {
         // if a zero is supplied for either integer parameter, use the default
         int min = minLength == 0 ? DEFAULT_MIN_LENGTH : minLength;
         int max = maxLength == 0 ? DEFAULT_MAX_LENGTH : maxLength;
@@ -192,6 +196,9 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 o--;
             }
         }
+        if(bestModel==null) {
+            throw new IllegalStateException("randomCharacter() found a prefix for which it had no model");
+        }
         double sumOfWeights = bestModel.values().stream().reduce(0.0D, (a,b) -> a+b);
         double randomRoll = sumOfWeights * Math.random();
         for(Character c: bestModel.keySet()) {
@@ -201,7 +208,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 return c;
             }
         }
-        System.out.println('!');
         return '!'; // this should never occur unless the prefix doesn't exist in the model
     }
 
