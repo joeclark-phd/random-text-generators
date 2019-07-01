@@ -152,6 +152,10 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @throws IllegalStateException if model has not been trained
      */
     public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) throws IllegalStateException {
+        // if a zero is supplied for either integer parameter, use the default
+        int min = minLength == 0 ? DEFAULT_MIN_LENGTH : minLength;
+        int max = maxLength == 0 ? DEFAULT_MAX_LENGTH : maxLength;
+
         if(datasetLength==0) {
             throw new IllegalStateException("model has not yet been trained");
         } else {
@@ -168,8 +172,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 } while (newName.charAt(newName.length() - 1) != CONTROL_CHAR);
             } while(
                     // conditions for a re-roll
-                    (newName.length() < minLength+order+1) ||
-                    (newName.length() > maxLength+order+1) ||
+                    (newName.length() < min+order+1) ||
+                    (newName.length() > max+order+1) ||
                     ((startsWith != null) && (newName.indexOf(CONTROL_CHAR + startsWith) == -1)) ||
                     ((endsWith != null) && (newName.indexOf(endsWith + CONTROL_CHAR) == -1))
             );
