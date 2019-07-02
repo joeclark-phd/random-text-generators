@@ -8,7 +8,7 @@ The interface, **RandomTextGenerator**, could be used with more than one type of
  
 - `String generateOne()` yields a new, procedurally-generated text string.
 
-Currently there is only a single implementation of the interface: 
+Currently there are three implementations of the interface: 
 
 ### MarkovTextGenerator
 
@@ -22,6 +22,14 @@ Based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.rogu
 
 - A Bayesian prior probability is added to every character in the alphabet in every model, so some truly random character sequences not seen in the training data are possible.  The alphabet is inferred from the training data, so any UTF-8 characters should be possible.  Increase the default "prior" to increase the randomness.
 
+### RandomDrawGenerator
+
+This generator simply draws a String at random from a `Stream<String>` of data fed into it.  Useful, if not very sophisticated.  Like MarkovTextGenerator, it allows the consumer to specify a desired minimum length, maximum length, start string, or end string, to filter the randomly-drawn text.
+
+### DoubleTextGenerator
+
+This generator combines the output of two other RandomTextGenerators, which could be useful if you want to generate a combination of first name and last name, or a hyphenated name.  Its constructor takes two RandomDrawGenerators and a String separator (if null, a single space is used by default).
+
 
 ## How to build and test
 
@@ -34,6 +42,8 @@ If you have Java 8 and Maven installed:
 ## Examples
 
 I've built another project to run examples of output.  You can find it here: [joeclark-net/procedural-generation-examples](https://github.com/joeclark-phd/procedural-generation-examples)
+
+### MarkovTextGenerator examples
 
 With **MarkovTextGenerator** trained on a file of 1360 ancient Roman names (/src/test/resources/romans.txt), order 3, prior 0.005F, minLength 4, maxLength 12, I generated these 25 names in 181ms (including the training):
 
