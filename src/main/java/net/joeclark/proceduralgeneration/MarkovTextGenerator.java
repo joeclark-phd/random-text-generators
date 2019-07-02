@@ -137,6 +137,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return a random string with a (default) length of 4 to 12 characters.
      * @throws IllegalStateException if model has not been trained
      */
+    @Override
     public String generateOne() {
         return generateOne(DEFAULT_MIN_LENGTH, DEFAULT_MAX_LENGTH,null,null);  // defaults
     }
@@ -155,10 +156,14 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return a random string according to your specifications
      * @throws IllegalStateException if model has not been trained
      */
+    @Override
     public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) {
         // if a zero is supplied for either integer parameter, use the default
         int min = minLength == 0 ? DEFAULT_MIN_LENGTH : minLength;
         int max = maxLength == 0 ? DEFAULT_MAX_LENGTH : maxLength;
+        // random string will be lowercased; check startsWith and endsWith to mitigate possible errors
+        String start = startsWith == null ? null : startsWith.toLowerCase();
+        String end = endsWith == null ? null : endsWith.toLowerCase();
 
         if(datasetLength==0) {
             throw new IllegalStateException("model has not yet been trained");
@@ -178,8 +183,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     // conditions for a re-roll
                     (newName.length() < min+order+1) ||
                     (newName.length() > max+order+1) ||
-                    ((startsWith != null) && (newName.indexOf(CONTROL_CHAR + startsWith) == -1)) ||
-                    ((endsWith != null) && (newName.indexOf(endsWith + CONTROL_CHAR) == -1))
+                    ((start != null) && (newName.indexOf(CONTROL_CHAR + start) == -1)) ||
+                    ((end != null) && (newName.indexOf(end + CONTROL_CHAR) == -1))
             );
             //System.out.println(newName.substring(order,newName.length()-1));
             return newName.substring(order, newName.length() - 1); // strip off control characters
