@@ -75,7 +75,7 @@ class RandomDrawGeneratorTest {
             for(int i=0;i<10;i++) {
                 //try it ten times
                 draw = randomDrawGenerator.generateOne(min,max,null,null);
-                System.out.println(draw);
+                //System.out.println(draw);
                 assertTrue(draw.length()>=min && draw.length()<=max,"Random draw didn't fall within specified length range");
             }
         }
