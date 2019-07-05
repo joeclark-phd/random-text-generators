@@ -163,14 +163,15 @@ class MarkovTextGeneratorTest {
         @Test
         @DisplayName("correctly tallies first-order observations")
         void countsFirstOrderObservations() {
-            assertEquals(Arrays.asList('j','j','j','j'),markovTextGenerator.getObservations().get("#"), "should have observed lowercase j four times for '#'");
+            assertEquals(Arrays.asList('j','j','j','j'),markovTextGenerator.getObservations().get(Character.toString(MarkovTextGenerator.CONTROL_CHAR)), "should have observed lowercase j four times for '#'");
         }
 
         @Test
         @DisplayName("correctly tallies third-order observations")
         void countsThirdOrderObservations() {
             markovTextGenerator.setOrder(3);
-            assertEquals(Arrays.asList('j','j','j','j'),markovTextGenerator.getObservations().get("###"), "should have observed lowercase j four times for '###'");
+            String prefix = Character.toString(MarkovTextGenerator.CONTROL_CHAR) + Character.toString(MarkovTextGenerator.CONTROL_CHAR) + Character.toString(MarkovTextGenerator.CONTROL_CHAR);
+                    assertEquals(Arrays.asList('j','j','j','j'),markovTextGenerator.getObservations().get(prefix), "should have observed lowercase j four times for '###'");
         }
 
         @Test

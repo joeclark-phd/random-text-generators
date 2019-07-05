@@ -26,9 +26,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     /** {@value}*/
     public static final int DEFAULT_MAX_LENGTH = 12;
 
-    // todo: pick a less common character
-    static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
-    static final char DANGER_CHAR = '!';  // a character that should never occur, and would indicate a failure in randomCharacter()
+    static final char CONTROL_CHAR = '\u001F';  // to indicate beginning and end of input; must not be in the data's alphabet
+    static final char DANGER_CHAR = '\u001C';  // a character that should never occur, and would indicate a failure in randomCharacter()
 
     private int order = DEFAULT_ORDER;
     private double prior = DEFAULT_PRIOR;
