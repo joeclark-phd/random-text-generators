@@ -11,88 +11,93 @@ import java.util.stream.Stream;
 public class RandomDrawGenerator implements RandomTextGenerator {
 
     /** {@value}*/
-    public static final int DEFAULT_MIN_LENGTH = 4;
+    public static final int DEFAULT_MIN_LENGTH = 0;
     /** {@value}*/
-    public static final int DEFAULT_MAX_LENGTH = 12;
+    public static final int DEFAULT_MAX_LENGTH = Integer.MAX_VALUE;
+
+    // todo: pick a less common character
     static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
 
-    private List<String> wordList;
+
+    private int minLength = DEFAULT_MIN_LENGTH;
+    private int maxLength = DEFAULT_MAX_LENGTH;
+    private String startsWith;
+    private String endsWith;
+    // todo: add a regex match option
     private Random random;
+    // todo: add the option to set a custom RNG
+
+    private List<String> wordList;
 
     // for testing only
     List<String> getWordList() { return wordList; }
 
-    /**
-     * @return a random lowercase string with a (default) length of 4 to 12 characters.
-     * @throws IllegalStateException if model has not been trained
-     */
-    @Override
-    public String generateOne() {
-        return generateOne(DEFAULT_MIN_LENGTH, DEFAULT_MAX_LENGTH,null,null);  // defaults
-    }
+    // setters
+    public void setMinLength(int minLength) { this.minLength = minLength; }
+    public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
+    public void setStartsWith(String startsWith) { this.startsWith = startsWith.toLowerCase(); }
+    public void setEndsWith(String endsWith) { this.endsWith = endsWith.toLowerCase(); }
+    // getters
+    public int getMaxLength() { return maxLength; }
+    public int getMinLength() { return minLength; }
+    public String getStartsWith() { return startsWith; }
+    public String getEndsWith() { return endsWith; }
+
+
 
     /**
-     * @param minLength defaults to 4
-     * @param maxLength defaults to 12
-     * @param startsWith (default null) if not null, output will be filtered for results that start with the given string.
-     *                   Beware, if you specify a complex string or a string that cannot occur in the alphabet of the
-     *                   training data, you may end up with an infinite loop as the program tries to generate a name
-     *                   to pass this impossible test.
-     * @param endsWith (default null) if not null, output will be filtered for results that end with the given string.
-     *                 Beware, if you specify a complex string or a string that cannot occur in the alphabet of the
-     *                 training data, you may end up with an infinite loop as the program tries to generate a name
-     *                 to pass this impossible test.
-     * @return a random lowercase string according to your specifications
-     * @throws IllegalStateException if model has not been trained
-     */
-    @Override
-    public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) {
-        // if a zero is supplied for either integer parameter, use the default
-        int min = minLength == 0 ? DEFAULT_MIN_LENGTH : minLength;
-        int max = maxLength == 0 ? DEFAULT_MAX_LENGTH : maxLength;
-        // random string will be lowercased; check startsWith and endsWith to mitigate possible errors
-        String start = startsWith == null ? null : startsWith.toLowerCase();
-        String end = endsWith == null ? null : endsWith.toLowerCase();
-
-        if (!isTrained()) {
-            throw new IllegalStateException("model has not yet been trained");
-        } else {
-            String draw;
-            do {
-                // add control characters to indicate start and end of word
-                draw = CONTROL_CHAR + wordList.get(random.nextInt(wordList.size())) + CONTROL_CHAR;
-            } while (
-                // conditions for a re-roll
-                    (draw.length() < min + 2) ||
-                    (draw.length() > max + 2) ||
-                    ((start != null) && (!draw.contains(CONTROL_CHAR + start))) ||
-                    ((end != null) && (!draw.contains(end + CONTROL_CHAR)))
-            );
-            return draw.substring(1, draw.length() - 1); // strip off control characters
-        }
-    }
-            /**
-             * Initialize the RandomDrawGenerator with a stream of sample Strings. Random draws will be made from this data.
-             * @param rawWords a stream of training data
-             */
-    public RandomDrawGenerator(Stream<String> rawWords) {
-        this();
-        this.train(rawWords);
-    }
-
-    /**
-     * Initialize the instance without training data, to train() it later. Not recommended.
+     * Initialize a new RandomDrawGenerator. A new instance begins with the default values for minLength, maxLength,
+     * startsWith, and endsWith.  After initialization, you must train the model on a stream of input Strings before
+     * generating names, optionally first setting parameters such as minLength and maxLength, e.g.:
+     * <code>new RandomDrawGenerator.withMinLength(4).withMaxLength(12),train(streamOfStrings)</code>
      */
     public RandomDrawGenerator() {
         random = new Random();
     }
 
     /**
+     * @param minLength the minimum length of output text you'll accept
+     * @return the same RandomDrawGenerator
+     */
+    public RandomDrawGenerator withMinLength(int minLength) {
+        this.minLength = minLength;
+        return this;
+    }
+
+    /**
+     * @param maxLength the maximum length of output text you'll accept
+     * @return the same RandomDrawGenerator
+     */
+    public RandomDrawGenerator withMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+        return this;
+    }
+
+    /**
+     * @param startsWith a String that the beginning of the output must match, for example, a letter you want it to start with
+     * @return the same RandomDrawGenerator
+     */
+    public RandomDrawGenerator withStart(String startsWith) {
+        this.startsWith = startsWith.toLowerCase();
+        return this;
+    }
+
+    /**
+     * @param endsWith a String that the end of the output must match
+     * @return the same RandomDrawGenerator
+     */
+    public RandomDrawGenerator withEnd(String endsWith) {
+        this.endsWith = endsWith.toLowerCase();
+        return this;
+    }
+
+    /**
      * Ingest a new set of training data, overwriting any data that was previously trained.  Subsequent random draws
      * will be made from this data.
      */
-    public void train(Stream<String> rawWords) {
+    public RandomDrawGenerator train(Stream<String> rawWords) {
         this.wordList = rawWords.map(String::toLowerCase).collect(Collectors.toList());
+        return this;
     }
 
     /**
@@ -101,6 +106,38 @@ public class RandomDrawGenerator implements RandomTextGenerator {
     public boolean isTrained() {
         return (this.wordList != null && this.wordList.size()>0);
     }
+
+
+
+
+    /**
+     * @return a random string from the training dataset (but lowercase). If you have set filters such
+     * as maximum and minimum length, or a starting and ending sequence, be careful that those filters are not
+     * impossible given the training data. You could end up with an infinite loop or an exception if your
+     * conditions are impossible to satisfy.
+     * @throws IllegalStateException if model has not been trained
+     */
+    @Override
+    public String generateOne() {
+
+        if (!isTrained()) {
+            throw new IllegalStateException("model has not yet been trained");
+        } else {
+            String draw;
+            do {
+                // add control characters to indicate start and end of word
+                draw = CONTROL_CHAR + wordList.get(random.nextInt(wordList.size())).toLowerCase() + CONTROL_CHAR;
+            } while (
+                // conditions for a re-roll
+                    (draw.length() < minLength + 2) ||
+                    (draw.length() - 2 > maxLength) ||
+                    ((startsWith != null) && (!draw.contains(CONTROL_CHAR + startsWith))) ||
+                    ((endsWith != null) && (!draw.contains(endsWith + CONTROL_CHAR)))
+            );
+            return draw.substring(1, draw.length() - 1); // strip off control characters
+        }
+    }
+
 
 
 }

@@ -31,8 +31,8 @@ class DoubleTextGeneratorTest {
     @DisplayName("Can be instantiated with two RandomTextGenerators")
     void canBeInstantiated() {
         doubleTextGenerator = new DoubleTextGenerator(
-                new MarkovTextGenerator(greekNames.stream()),
-                new MarkovTextGenerator(americanNames.stream()),
+                new MarkovTextGenerator().train(greekNames.stream()),
+                new MarkovTextGenerator().train(americanNames.stream()),
                 " "
         );
     }
@@ -44,8 +44,8 @@ class DoubleTextGeneratorTest {
         @BeforeEach
         void instantiate() {
             doubleTextGenerator = new DoubleTextGenerator(
-                    new MarkovTextGenerator(greekNames.stream()),
-                    new MarkovTextGenerator(americanNames.stream()),
+                    new MarkovTextGenerator().train(greekNames.stream()),
+                    new MarkovTextGenerator().train(americanNames.stream()),
                     " "
             );
         }

@@ -29,7 +29,7 @@ class RandomDrawGeneratorTest {
     @Test
     @DisplayName("can be instantiated with a stream of Strings")
     void canBeInstantiatedWithAStream() {
-        randomDrawGenerator = new RandomDrawGenerator(moreNames.stream());
+        randomDrawGenerator = new RandomDrawGenerator().train(moreNames.stream());
     }
 
     @Test
@@ -39,13 +39,19 @@ class RandomDrawGeneratorTest {
         randomDrawGenerator.train(moreNames.stream());
     }
 
+    @Test
+    @DisplayName("can be instantiated by chaining configuration setters")
+    void canBeInstantiatedWithChaining() {
+        randomDrawGenerator = new RandomDrawGenerator().withMinLength(3).withMaxLength(8).withStart("H").withEnd("s").train(moreNames.stream());
+    }
+
     @Nested
     @DisplayName("Once instantiated...")
     class OnceInstantiated {
 
         @BeforeEach
         void instantiateGenerator() {
-            randomDrawGenerator = new RandomDrawGenerator(moreNames.stream());
+            randomDrawGenerator = new RandomDrawGenerator().train(moreNames.stream());
         }
 
         @Test
@@ -60,7 +66,9 @@ class RandomDrawGeneratorTest {
         @Test
         @DisplayName("Draws a string with the specified start and end")
         void drawsAStringWithSpecifiedStartEnd() {
-            String word = randomDrawGenerator.generateOne(0,0,"T","s");
+            randomDrawGenerator.setStartsWith("T");
+            randomDrawGenerator.setEndsWith("s");
+            String word = randomDrawGenerator.generateOne();
             //System.out.println(word);
             assertTrue(word.startsWith("t"),"Random word didn't start with lowercase 't'");
             assertTrue(word.endsWith("s"),"Random word didn't end with lowercase 's'");
@@ -71,10 +79,12 @@ class RandomDrawGeneratorTest {
         void drawsStringsWithSpecifiedLengthRange() {
             int min = 5;
             int max = 6;
+            randomDrawGenerator.setMinLength(min);
+            randomDrawGenerator.setMaxLength(max);
             String draw;
             for(int i=0;i<10;i++) {
                 //try it ten times
-                draw = randomDrawGenerator.generateOne(min,max,null,null);
+                draw = randomDrawGenerator.generateOne();
                 //System.out.println(draw);
                 assertTrue(draw.length()>=min && draw.length()<=max,"Random draw didn't fall within specified length range");
             }

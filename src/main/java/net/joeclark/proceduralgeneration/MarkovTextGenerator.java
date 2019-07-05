@@ -25,68 +25,122 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     public static final int DEFAULT_MIN_LENGTH = 4;
     /** {@value}*/
     public static final int DEFAULT_MAX_LENGTH = 12;
+
+    // todo: pick a less common character
     static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
+    static final char DANGER_CHAR = '!';  // a character that should never occur, and would indicate a failure in randomCharacter()
+
+    private int order = DEFAULT_ORDER;
+    private double prior = DEFAULT_PRIOR;
+    private int minLength = DEFAULT_MIN_LENGTH;
+    private int maxLength = DEFAULT_MAX_LENGTH;
+    private String startsWith;
+    private String endsWith;
+    // todo: add a regex match option
+    // todo: add the option to set a custom RNG
 
     private int datasetLength;
-    private int order;
-    private double prior;
     private Set<Character> alphabet = new HashSet<>();
     private Map<String, List<Character>> observations = new HashMap<>();
     private Map<String, Map<Character,Double>> model = new HashMap<>();
 
-    /** Initialize a MarkovTextGenerator with a training data set, accepting the default values for order and prior.
-     * @param rawWords a Stream of training data, e.g. from a file.  your random text output will look like the input data
-     * */
-    public MarkovTextGenerator(Stream<String> rawWords) {
-        this();
-        this.train(rawWords);
+    /**
+     * Initialize a new MarkovTextGenerator. A new instance begins with the default values for order, prior,
+     * minLength, maxLength, startsWith, and endsWith.  After initialization, you must train the model on a stream
+     * of input Strings before generating names, optionally first setting parameters such as order and prior, e.g.:
+     * <code>new MarkovTextGenerator.withOrder(3).withPrior(0.005D),train(streamOfStrings)</code>
+     */
+    public MarkovTextGenerator() {
     }
-    /** A constructor that allows you to override the default settings.
-     * @param rawWords a Stream of training data, e.g. from a file.  your random text output will look like the input data
+
+    /**
      * @param order the "order" of the model (default 3). higher orders are more sophisticated but slower to train, with diminishing returns
-     * @param prior a Bayesian prior that injects some true randomness (default 0.005). increase it to make your text more random or to make up for sparse training data
-     * */
-    public MarkovTextGenerator(int order, double prior, Stream<String> rawWords) {
-        this(order,prior);
-        this.train(rawWords);
-    }
-    /** Initialize a MarkovTextGenerator without training it, accepting default parameters.  Not recommended, because
-     * someone might try to generate a random string from your untrained generator and get an IllegalStateException. */
-    public MarkovTextGenerator() { this(DEFAULT_ORDER, DEFAULT_PRIOR); } // defaults for order and prior
-    /** Initialize a MarkovTextGenerator without training it, specifying parameters.  Not recommended, because
-     * someone might try to generate a random string from your untrained generator and get an IllegalStateException.
-     * @param order the "order" of the model (default 3). higher orders are more sophisticated but slower to train, with diminishing returns
-     * @param prior a Bayesian prior that injects some true randomness (default 0.005). increase it to make your text more random or to make up for sparse training data
-     * */
-    public MarkovTextGenerator(int order, double prior) {
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withOrder(int order) {
         this.order = order;
+        return this;
+    }
+
+    /**
+     * @param prior a Bayesian prior that injects some true randomness (default 0.005). increase it to make your text more random or to make up for sparse training data
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withPrior(double prior) {
         this.prior = prior;
+        return this;
+    }
+
+    /**
+     * @param minLength the minimum length of output text you'll accept
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withMinLength(int minLength) {
+        this.minLength = minLength;
+        return this;
+    }
+
+    /**
+     * @param maxLength the maximum length of output text you'll accept
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+        return this;
+    }
+
+    /**
+     * @param startsWith a String that the beginning of the output must match, for example, a letter you want it to start with
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withStart(String startsWith) {
+        this.startsWith = startsWith.toLowerCase();
+        return this;
+    }
+
+    /**
+     * @param endsWith a String that the end of the output must match
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withEnd(String endsWith) {
+        this.endsWith = endsWith.toLowerCase();
+        return this;
     }
 
     // for JUnit tests only
     int getDatasetLength() { return datasetLength; }
-    int getOrder() { return order; }
-    double getPrior() { return prior; }
     Set<Character> getAlphabet() { return alphabet; }
     Map<String, List<Character>> getObservations() { return observations; }
     Map<String, Map<Character,Double>> getModel() { return model; }
 
-    // public interface
+    // setters
     public void setOrder(int order) { this.order = order; }
     public void setPrior(double prior) { this.prior = prior; }
+    public void setMinLength(int minLength) { this.minLength = minLength; }
+    public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
+    public void setStartsWith(String startsWith) { this.startsWith = startsWith.toLowerCase(); }
+    public void setEndsWith(String endsWith) { this.endsWith = endsWith.toLowerCase(); }
+    // getters
+    public int getOrder() { return order; }
+    public double getPrior() { return prior; }
+    public int getMaxLength() { return maxLength; }
+    public int getMinLength() { return minLength; }
+    public String getStartsWith() { return startsWith; }
+    public String getEndsWith() { return endsWith; }
 
     /**
      * @return true if the model was trained or re-trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
      */
     public boolean isTrained() { return datasetLength > 0; }
 
-    /** If you created the MarkovTextGenerator without a training set (which is not recommended), you can use this
-     * method to train it later.  Or you can use this method to re-use an instance that's already been trained on
-     * different data.  It will delete and overwrite the instance's existing model, with no memory of the earlier
-     * training data.
+    /**
+     * Build the Markov chain model based on a training dataset.  Do this <i>after</i> setting the desired
+     * order and prior, but <i>before</i> attempting to generate names.  If this function is called a second time,
+     * it will erase the prior model and train a new one on the new stream of input.
      * @param rawWords a Stream of training data, e.g. from a file.  your random text output will look like the input data
+     * @return the same MarkovTextGenerator
      */
-    public void train(Stream<String> rawWords) {
+    public MarkovTextGenerator train(Stream<String> rawWords) {
 
         datasetLength = 0;
         alphabet.clear();
@@ -116,6 +170,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             model.put(k,relativeProbabilities);
         });
         // model is now populated
+
+        return this;
     }
 
     // used in training, runs once for each String in the training set to add to the observations map
@@ -134,46 +190,27 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     }
 
     /**
-     * @return a random string with a (default) length of 4 to 12 characters.
+     * @return a random string that based on a Markov chain model that is likely to be original but similar
+     * to the strings in the training data. If you have set filters such as maximum and minimum length, or a
+     * starting and ending sequence, be careful that those filters are not impossible given the training data
+     * (for example, the instance infers an alphabet from the training data and will never generate letters
+     * outside that alphabet).  You could end up with an infinite loop or an exception if your filters are
+     * impossible to match.
      * @throws IllegalStateException if model has not been trained
      */
     @Override
     public String generateOne() {
-        return generateOne(DEFAULT_MIN_LENGTH, DEFAULT_MAX_LENGTH,null,null);  // defaults
-    }
-
-    /**
-     * @param minLength defaults to 4
-     * @param maxLength defaults to 12
-     * @param startsWith (default null) if not null, output will be filtered for results that start with the given string.
-     *                   Beware, if you specify a complex string or a string that cannot occur in the alphabet of the
-     *                   training data, you may end up with an infinite loop as the program tries to generate a name
-     *                   to pass this impossible test.
-     * @param endsWith (default null) if not null, output will be filtered for results that end with the given string.
-     *                 Beware, if you specify a complex string or a string that cannot occur in the alphabet of the
-     *                 training data, you may end up with an infinite loop as the program tries to generate a name
-     *                 to pass this impossible test.
-     * @return a random string according to your specifications
-     * @throws IllegalStateException if model has not been trained
-     */
-    @Override
-    public String generateOne(int minLength, int maxLength, String startsWith, String endsWith) {
-        // if a zero is supplied for either integer parameter, use the default
-        int min = minLength == 0 ? DEFAULT_MIN_LENGTH : minLength;
-        int max = maxLength == 0 ? DEFAULT_MAX_LENGTH : maxLength;
-        // random string will be lowercased; check startsWith and endsWith to mitigate possible errors
-        String start = startsWith == null ? null : startsWith.toLowerCase();
-        String end = endsWith == null ? null : endsWith.toLowerCase();
-
         if(datasetLength==0) {
             throw new IllegalStateException("model has not yet been trained");
         } else {
             StringBuilder newName = new StringBuilder();
+
             do {
                 newName.delete(0,newName.length());
                 for (int i = 0; i < order; i++) {
                     newName.append(CONTROL_CHAR);
                 }
+                // todo: initialize with startsWith rather than filtering later!
 
                 do {
                     Character nextChar = randomCharacter(newName.substring(newName.length() - order));
@@ -181,10 +218,10 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 } while (newName.charAt(newName.length() - 1) != CONTROL_CHAR);
             } while(
                     // conditions for a re-roll
-                    (newName.length() < min+order+1) ||
-                    (newName.length() > max+order+1) ||
-                    ((start != null) && (newName.indexOf(CONTROL_CHAR + start) == -1)) ||
-                    ((end != null) && (newName.indexOf(end + CONTROL_CHAR) == -1))
+                    (newName.length() < minLength+order+1) ||
+                    (newName.length() > maxLength+order+1) ||
+                    ((startsWith != null) && (newName.indexOf(CONTROL_CHAR + startsWith) == -1)) ||
+                    ((endsWith != null) && (newName.indexOf(endsWith + CONTROL_CHAR) == -1))
             );
             //System.out.println(newName.substring(order,newName.length()-1));
             return newName.substring(order, newName.length() - 1); // strip off control characters
@@ -213,7 +250,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 return c;
             }
         }
-        return '!'; // this should never occur unless the prefix doesn't exist in the model
+        return DANGER_CHAR; // this should never occur unless the prefix doesn't exist in the model
+        // todo : test for this!
     }
 
 }

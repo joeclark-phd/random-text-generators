@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -76,9 +77,9 @@ class MarkovTextGeneratorTest {
     }
 
     @Test
-    @DisplayName("can be instantiated with a Stream<String> only")
+    @DisplayName("can be instantiated and chained to the .train() function")
     void canBeInstantiatedWithAStream() {
-        new MarkovTextGenerator(names.stream());
+        new MarkovTextGenerator().train(names.stream());
     }
 
     @Nested
@@ -87,7 +88,7 @@ class MarkovTextGeneratorTest {
 
         @BeforeEach
         void createInstanceWithStream() {
-            markovTextGenerator = new MarkovTextGenerator(names.stream());
+            markovTextGenerator = new MarkovTextGenerator().train(names.stream());
         }
 
         @Test
@@ -111,6 +112,23 @@ class MarkovTextGeneratorTest {
             Assertions.assertTrue( name != null && name.length() > 0, "Name is null or empty" );
         }
 
+        @Test
+        @DisplayName("always draws characters from the input alphabet")
+        void alwaysDrawsCharactersFromAlphabet() {
+            int numDangerChars = 0;
+            String dangerString = Character.toString(MarkovTextGenerator.DANGER_CHAR);
+            // the danger char was coming up very rarely due to, i think, rounding errors
+            // in randomCharacter() where randomRoll would sometimes be greater than
+            // sumOfWeights. to fix it, i changed prior to a double (to match
+            // Random.random()) and changed >= to > in a key line. since it was so rare
+            // to begin with, checking ten thousand random strings seems like a good way
+            // to make sure the problem doesn't return
+            for(int i=0;i<10000;i++) {
+                numDangerChars += markovTextGenerator.generateOne().contains(dangerString) ? 1 : 0;
+            }
+            assertEquals(0,numDangerChars);
+        }
+
     }
 
     @Nested
@@ -119,7 +137,7 @@ class MarkovTextGeneratorTest {
 
         @BeforeEach
         void createInstanceWithStream() {
-            markovTextGenerator = new MarkovTextGenerator(3,0.005F,names.stream());
+            markovTextGenerator = new MarkovTextGenerator().withOrder(3).withPrior(0.005F).train(names.stream());
         }
 
         @Test
@@ -172,7 +190,7 @@ class MarkovTextGeneratorTest {
 
         @BeforeEach
         void createInstanceWithStream() {
-            markovTextGenerator = new MarkovTextGenerator(moreNames.stream());
+            markovTextGenerator = new MarkovTextGenerator().train(moreNames.stream());
         }
 
 //        @Test
@@ -188,21 +206,25 @@ class MarkovTextGeneratorTest {
         @Test
         @DisplayName("can be specified to start with a given string")
         void canStartWithGivenString() {
-            String name = markovTextGenerator.generateOne(MarkovTextGenerator.DEFAULT_MIN_LENGTH,MarkovTextGenerator.DEFAULT_MAX_LENGTH,"z",null);
+            markovTextGenerator.setStartsWith("z");
+            String name = markovTextGenerator.generateOne();
             assertTrue(name.startsWith("z"),"random name didn't start with given string");
         }
 
         @Test
         @DisplayName("can be specified to end with a given string")
         void canEndWithGivenString() {
-            String name = markovTextGenerator.generateOne(MarkovTextGenerator.DEFAULT_MIN_LENGTH,MarkovTextGenerator.DEFAULT_MAX_LENGTH,null,"eus");
+            markovTextGenerator.setEndsWith("eus");
+            String name = markovTextGenerator.generateOne();
             assertTrue(name.endsWith("eus"),"random name didn't end with given string");
         }
 
         @Test
         @DisplayName("can be held to a specified length range")
         void canBeHeldToSpecifiedLengthRange() {
-            String name = markovTextGenerator.generateOne(5,6,null,null);
+            markovTextGenerator.setMinLength(5);
+            markovTextGenerator.setMaxLength(6);
+            String name = markovTextGenerator.generateOne();
             assertTrue(name.length()>=5 && name.length()<=6,"name was not in specified length range");
         }
 
@@ -214,7 +236,7 @@ class MarkovTextGeneratorTest {
     void canBeInstantiatedWithAFile() {
         String fileName = "src/test/resources/romans.txt";
         try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            new MarkovTextGenerator(stream);
+            new MarkovTextGenerator().train(stream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,7 +246,7 @@ class MarkovTextGeneratorTest {
     @DisplayName("can be instantiated by streaming a resource")
     void canBeInstantiatedByStreamingResource() {
         try(Stream<String> stream = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/romans.txt"))).lines()) {
-            new MarkovTextGenerator(stream);
+            new MarkovTextGenerator().train(stream);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
