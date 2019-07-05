@@ -225,7 +225,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     // conditions for a re-roll
                     (newName.length() < minLength+order+1) ||
                     (newName.length() > maxLength+order+1) ||
-                    ((startFilter != null) && (newName.indexOf(CONTROL_CHAR + startFilter) == -1)) ||
                     ((endFilter != null) && (newName.indexOf(endFilter + CONTROL_CHAR) == -1))
             );
             //System.out.println(newName.substring(order,newName.length()-1));

@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("DoubleTextGeneratorTest...")
+@DisplayName("DoubleTextGenerator...")
 class DoubleTextGeneratorTest {
 
     DoubleTextGenerator doubleTextGenerator;
