@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**withStartFilter
+/**
  * A class that uses a Markov model, trained on a {@code Stream<String>} of example text, to generate new,
  * random strings similar to the training data.  Based on <a href="http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme" target="_blank">an
  * algorithm described by JLund3 at RogueBasin</a>.
