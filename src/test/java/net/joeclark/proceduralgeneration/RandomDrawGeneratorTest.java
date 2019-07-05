@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,6 +88,16 @@ class RandomDrawGeneratorTest {
                 assertTrue(draw.length()>=min && draw.length()<=max,"Random draw didn't fall within specified length range");
             }
         }
+
+        @Test
+        @DisplayName("are predictable if the same random seed is used")
+        void arePredictableWithAGivenRandomSeed() {
+            randomDrawGenerator.setRandom(new Random(12345));
+            RandomDrawGenerator anotherGenerator = new RandomDrawGenerator().withRandom(new Random(12345)).train(moreNames.stream());
+            assertEquals(randomDrawGenerator.generateOne(),anotherGenerator.generateOne(),"two RandomDrawGenerators with the same random seed produced different strings");
+        }
+
+
 
     }
 

@@ -23,8 +23,7 @@ public class RandomDrawGenerator implements RandomTextGenerator {
     private String startFilter;
     private String endFilter;
     // todo: add a regex match option
-    private Random random;
-    // todo: add the option to set a custom RNG
+    private Random random = new Random();
 
     private List<String> wordList;
 
@@ -36,11 +35,13 @@ public class RandomDrawGenerator implements RandomTextGenerator {
     public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
     public void setStartFilter(String startFilter) { this.startFilter = startFilter.toLowerCase(); }
     public void setEndFilter(String endFilter) { this.endFilter = endFilter.toLowerCase(); }
+    public void setRandom(Random random) { this.random = random; }
     // getters
     public int getMaxLength() { return maxLength; }
     public int getMinLength() { return minLength; }
     public String getStartFilter() { return startFilter; }
     public String getEndFilter() { return endFilter; }
+
 
 
 
@@ -51,7 +52,15 @@ public class RandomDrawGenerator implements RandomTextGenerator {
      * <code>new RandomDrawGenerator.withMinLength(4).withMaxLength(12),train(streamOfStrings)</code>
      */
     public RandomDrawGenerator() {
-        random = new Random();
+    }
+
+    /**
+     * @param random a Random number generator to be used in generating text
+     * @return the same RandomDrawGenerator
+     */
+    public RandomDrawGenerator withRandom(Random random) {
+        this.random = random;
+        return this;
     }
 
     /**

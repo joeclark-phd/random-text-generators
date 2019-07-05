@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -228,6 +229,13 @@ class MarkovTextGeneratorTest {
             assertTrue(name.length()>=5 && name.length()<=6,"name was not in specified length range");
         }
 
+        @Test
+        @DisplayName("are predictable if the same random seed is used")
+        void arePredictableWithAGivenRandomSeed() {
+            markovTextGenerator.setRandom(new Random(12345));
+            MarkovTextGenerator anotherMarkov = new MarkovTextGenerator().withRandom(new Random(12345)).train(moreNames.stream());
+            assertEquals(markovTextGenerator.generateOne(),anotherMarkov.generateOne(),"two MarkovTextGenerators with the same random seed produced different strings");
+        }
 
     }
 

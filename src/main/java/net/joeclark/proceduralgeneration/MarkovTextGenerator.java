@@ -1,12 +1,7 @@
 
 package net.joeclark.proceduralgeneration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +31,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     private String startFilter;
     private String endFilter;
     // todo: add a regex match option
-    // todo: add the option to set a custom RNG
+    private Random random = new Random();
 
     private int datasetLength;
     private Set<Character> alphabet = new HashSet<>();
@@ -50,6 +45,15 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * <code>new MarkovTextGenerator.withOrder(3).withPrior(0.005D),train(streamOfStrings)</code>
      */
     public MarkovTextGenerator() {
+    }
+
+    /**
+     * @param random a Random number generator to be used in generating text
+     * @return the same MarkovTextGenerator
+     */
+    public MarkovTextGenerator withRandom(Random random) {
+        this.random = random;
+        return this;
     }
 
     /**
@@ -119,6 +123,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
     public void setStartFilter(String startFilter) { this.startFilter = startFilter.toLowerCase(); }
     public void setEndFilter(String endFilter) { this.endFilter = endFilter.toLowerCase(); }
+    public void setRandom(Random random) { this.random = random; }
     // getters
     public int getOrder() { return order; }
     public double getPrior() { return prior; }
@@ -209,7 +214,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 for (int i = 0; i < order; i++) {
                     newName.append(CONTROL_CHAR);
                 }
-                // todo: initialize with startFilter rather than filtering later!
+                // initialize with startFilter rather than adding it later!
+                if(startFilter!=null) { newName.append(startFilter.toLowerCase()); }
 
                 do {
                     Character nextChar = randomCharacter(newName.substring(newName.length() - order));
@@ -230,6 +236,10 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     Character randomCharacter(String prefix) {  // prefix length will equal this.order
         Map<Character,Double> bestModel = null;
         int o = order;
+        // Find the highest-order model that exists given the last few characters.
+        // For example, if "jav" occurs in the training data, that model will exist;
+        // if not, maybe there'll be a model for "av", failing that, "v" should have
+        // a model (as will every individual character in the training data)
         while(bestModel==null && o>0) {
             if (model.containsKey(prefix.substring(prefix.length()-o))) {
                 bestModel = model.get(prefix.substring(prefix.length()-o));
@@ -241,7 +251,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             throw new IllegalStateException("randomCharacter() found a prefix for which it had no model");
         }
         double sumOfWeights = bestModel.values().stream().reduce(0.0D, (a,b) -> a+b);
-        double randomRoll = sumOfWeights * Math.random();
+        double randomRoll = sumOfWeights * random.nextDouble();
         for(Character c: bestModel.keySet()) {
             if (randomRoll > bestModel.get(c)) {
                 randomRoll -= bestModel.get(c);
@@ -250,7 +260,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             }
         }
         return DANGER_CHAR; // this should never occur unless the prefix doesn't exist in the model
-        // todo : test for this!
     }
 
 }
