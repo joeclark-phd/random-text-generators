@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class RandomDrawGenerator implements RandomTextGenerator {
 
     /** {@value}*/
-    public static final int DEFAULT_MIN_LENGTH = 0;
+    public static final int DEFAULT_MIN_LENGTH = 1;
     /** {@value}*/
     public static final int DEFAULT_MAX_LENGTH = Integer.MAX_VALUE;
 
