@@ -5,9 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,7 @@ class RandomDrawGeneratorTest {
     @Test
     @DisplayName("can be instantiated by chaining configuration setters")
     void canBeInstantiatedWithChaining() {
-        randomDrawGenerator = new RandomDrawGenerator().withMinLength(3).withMaxLength(8).withStart("H").withEnd("s").train(moreNames.stream());
+        randomDrawGenerator = new RandomDrawGenerator().withMinLength(3).withMaxLength(8).withStartFilter("H").withEndFilter("s").train(moreNames.stream());
     }
 
     @Nested
@@ -66,8 +64,8 @@ class RandomDrawGeneratorTest {
         @Test
         @DisplayName("Draws a string with the specified start and end")
         void drawsAStringWithSpecifiedStartEnd() {
-            randomDrawGenerator.setStartsWith("T");
-            randomDrawGenerator.setEndsWith("s");
+            randomDrawGenerator.setStartFilter("T");
+            randomDrawGenerator.setEndFilter("s");
             String word = randomDrawGenerator.generateOne();
             //System.out.println(word);
             assertTrue(word.startsWith("t"),"Random word didn't start with lowercase 't'");

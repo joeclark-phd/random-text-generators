@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
+/**withStartFilter
  * A class that uses a Markov model, trained on a {@code Stream<String>} of example text, to generate new,
  * random strings similar to the training data.  Based on <a href="http://roguebasin.roguelikedevelopment.org/index.php?title=Names_from_a_high_order_Markov_Process_and_a_simplified_Katz_back-off_scheme" target="_blank">an
  * algorithm described by JLund3 at RogueBasin</a>.
@@ -34,8 +34,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     private double prior = DEFAULT_PRIOR;
     private int minLength = DEFAULT_MIN_LENGTH;
     private int maxLength = DEFAULT_MAX_LENGTH;
-    private String startsWith;
-    private String endsWith;
+    private String startFilter;
+    private String endFilter;
     // todo: add a regex match option
     // todo: add the option to set a custom RNG
 
@@ -46,7 +46,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
     /**
      * Initialize a new MarkovTextGenerator. A new instance begins with the default values for order, prior,
-     * minLength, maxLength, startsWith, and endsWith.  After initialization, you must train the model on a stream
+     * minLength, maxLength, startFilter, and endFilter.  After initialization, you must train the model on a stream
      * of input Strings before generating names, optionally first setting parameters such as order and prior, e.g.:
      * <code>new MarkovTextGenerator.withOrder(3).withPrior(0.005D),train(streamOfStrings)</code>
      */
@@ -90,20 +90,20 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     }
 
     /**
-     * @param startsWith a String that the beginning of the output must match, for example, a letter you want it to start with
+     * @param startFilter a String that the beginning of the output must match, for example, a letter you want it to start with
      * @return the same MarkovTextGenerator
      */
-    public MarkovTextGenerator withStart(String startsWith) {
-        this.startsWith = startsWith.toLowerCase();
+    public MarkovTextGenerator withStartFilter(String startFilter) {
+        this.startFilter = startFilter.toLowerCase();
         return this;
     }
 
     /**
-     * @param endsWith a String that the end of the output must match
+     * @param endFilter a String that the end of the output must match
      * @return the same MarkovTextGenerator
      */
-    public MarkovTextGenerator withEnd(String endsWith) {
-        this.endsWith = endsWith.toLowerCase();
+    public MarkovTextGenerator withEndFilter(String endFilter) {
+        this.endFilter = endFilter.toLowerCase();
         return this;
     }
 
@@ -118,15 +118,15 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     public void setPrior(double prior) { this.prior = prior; }
     public void setMinLength(int minLength) { this.minLength = minLength; }
     public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
-    public void setStartsWith(String startsWith) { this.startsWith = startsWith.toLowerCase(); }
-    public void setEndsWith(String endsWith) { this.endsWith = endsWith.toLowerCase(); }
+    public void setStartFilter(String startFilter) { this.startFilter = startFilter.toLowerCase(); }
+    public void setEndFilter(String endFilter) { this.endFilter = endFilter.toLowerCase(); }
     // getters
     public int getOrder() { return order; }
     public double getPrior() { return prior; }
     public int getMaxLength() { return maxLength; }
     public int getMinLength() { return minLength; }
-    public String getStartsWith() { return startsWith; }
-    public String getEndsWith() { return endsWith; }
+    public String getStartFilter() { return startFilter; }
+    public String getEndFilter() { return endFilter; }
 
     /**
      * @return true if the model was trained or re-trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
@@ -210,7 +210,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 for (int i = 0; i < order; i++) {
                     newName.append(CONTROL_CHAR);
                 }
-                // todo: initialize with startsWith rather than filtering later!
+                // todo: initialize with startFilter rather than filtering later!
 
                 do {
                     Character nextChar = randomCharacter(newName.substring(newName.length() - order));
@@ -220,8 +220,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     // conditions for a re-roll
                     (newName.length() < minLength+order+1) ||
                     (newName.length() > maxLength+order+1) ||
-                    ((startsWith != null) && (newName.indexOf(CONTROL_CHAR + startsWith) == -1)) ||
-                    ((endsWith != null) && (newName.indexOf(endsWith + CONTROL_CHAR) == -1))
+                    ((startFilter != null) && (newName.indexOf(CONTROL_CHAR + startFilter) == -1)) ||
+                    ((endFilter != null) && (newName.indexOf(endFilter + CONTROL_CHAR) == -1))
             );
             //System.out.println(newName.substring(order,newName.length()-1));
             return newName.substring(order, newName.length() - 1); // strip off control characters

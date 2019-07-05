@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -206,7 +205,7 @@ class MarkovTextGeneratorTest {
         @Test
         @DisplayName("can be specified to start with a given string")
         void canStartWithGivenString() {
-            markovTextGenerator.setStartsWith("z");
+            markovTextGenerator.setStartFilter("z");
             String name = markovTextGenerator.generateOne();
             assertTrue(name.startsWith("z"),"random name didn't start with given string");
         }
@@ -214,7 +213,7 @@ class MarkovTextGeneratorTest {
         @Test
         @DisplayName("can be specified to end with a given string")
         void canEndWithGivenString() {
-            markovTextGenerator.setEndsWith("eus");
+            markovTextGenerator.setEndFilter("eus");
             String name = markovTextGenerator.generateOne();
             assertTrue(name.endsWith("eus"),"random name didn't end with given string");
         }

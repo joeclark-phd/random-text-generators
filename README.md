@@ -53,7 +53,7 @@ With **MarkovTextGenerator** trained on a file of 1360 ancient Roman names (/src
     nentius          soceanus         lucia           eulo             atric       
     caranoratus      melus            sily            fulcherialio     dula        
  
-Setting the endsWith parameter to "a" filters out some passably female-sounding names.  ("ia","na", and "la" are also good filters):
+Setting the endFilter parameter to "a" filters out some passably female-sounding names.  ("ia","na", and "la" are also good filters):
 
     thea             supera           variwawrzma     vediskozma       isarina    
     tertia           lasca            juba            lucia            critula    

@@ -21,8 +21,8 @@ public class RandomDrawGenerator implements RandomTextGenerator {
 
     private int minLength = DEFAULT_MIN_LENGTH;
     private int maxLength = DEFAULT_MAX_LENGTH;
-    private String startsWith;
-    private String endsWith;
+    private String startFilter;
+    private String endFilter;
     // todo: add a regex match option
     private Random random;
     // todo: add the option to set a custom RNG
@@ -35,19 +35,19 @@ public class RandomDrawGenerator implements RandomTextGenerator {
     // setters
     public void setMinLength(int minLength) { this.minLength = minLength; }
     public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
-    public void setStartsWith(String startsWith) { this.startsWith = startsWith.toLowerCase(); }
-    public void setEndsWith(String endsWith) { this.endsWith = endsWith.toLowerCase(); }
+    public void setStartFilter(String startFilter) { this.startFilter = startFilter.toLowerCase(); }
+    public void setEndFilter(String endFilter) { this.endFilter = endFilter.toLowerCase(); }
     // getters
     public int getMaxLength() { return maxLength; }
     public int getMinLength() { return minLength; }
-    public String getStartsWith() { return startsWith; }
-    public String getEndsWith() { return endsWith; }
+    public String getStartFilter() { return startFilter; }
+    public String getEndFilter() { return endFilter; }
 
 
 
     /**
      * Initialize a new RandomDrawGenerator. A new instance begins with the default values for minLength, maxLength,
-     * startsWith, and endsWith.  After initialization, you must train the model on a stream of input Strings before
+     * startFilter, and endFilter.  After initialization, you must train the model on a stream of input Strings before
      * generating names, optionally first setting parameters such as minLength and maxLength, e.g.:
      * <code>new RandomDrawGenerator.withMinLength(4).withMaxLength(12),train(streamOfStrings)</code>
      */
@@ -74,20 +74,20 @@ public class RandomDrawGenerator implements RandomTextGenerator {
     }
 
     /**
-     * @param startsWith a String that the beginning of the output must match, for example, a letter you want it to start with
+     * @param startFilter a String that the beginning of the output must match, for example, a letter you want it to start with
      * @return the same RandomDrawGenerator
      */
-    public RandomDrawGenerator withStart(String startsWith) {
-        this.startsWith = startsWith.toLowerCase();
+    public RandomDrawGenerator withStartFilter(String startFilter) {
+        this.startFilter = startFilter.toLowerCase();
         return this;
     }
 
     /**
-     * @param endsWith a String that the end of the output must match
+     * @param endFilter a String that the end of the output must match
      * @return the same RandomDrawGenerator
      */
-    public RandomDrawGenerator withEnd(String endsWith) {
-        this.endsWith = endsWith.toLowerCase();
+    public RandomDrawGenerator withEndFilter(String endFilter) {
+        this.endFilter = endFilter.toLowerCase();
         return this;
     }
 
@@ -131,8 +131,8 @@ public class RandomDrawGenerator implements RandomTextGenerator {
                 // conditions for a re-roll
                     (draw.length() < minLength + 2) ||
                     (draw.length() - 2 > maxLength) ||
-                    ((startsWith != null) && (!draw.contains(CONTROL_CHAR + startsWith))) ||
-                    ((endsWith != null) && (!draw.contains(endsWith + CONTROL_CHAR)))
+                    ((startFilter != null) && (!draw.contains(CONTROL_CHAR + startFilter))) ||
+                    ((endFilter != null) && (!draw.contains(endFilter + CONTROL_CHAR)))
             );
             return draw.substring(1, draw.length() - 1); // strip off control characters
         }
