@@ -2,6 +2,8 @@
 package net.joeclark.proceduralgeneration;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -11,6 +13,8 @@ import java.util.stream.Stream;
  * algorithm described by JLund3 at RogueBasin</a>.
  */
 public class MarkovTextGenerator implements RandomTextGenerator {
+
+    private static final Logger LOGGER = Logger.getLogger( MarkovTextGenerator.class.getName() );
 
     /** {@value}*/
     public static final int DEFAULT_ORDER = 3;
@@ -45,6 +49,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * <code>new MarkovTextGenerator.withOrder(3).withPrior(0.005D),train(streamOfStrings)</code>
      */
     public MarkovTextGenerator() {
+        LOGGER.log( Level.INFO, "initialized new MarkovTextGenerator instance");
     }
 
     /**
@@ -146,11 +151,14 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      */
     public MarkovTextGenerator train(Stream<String> rawWords) {
 
+
         datasetLength = 0;
         alphabet.clear();
         alphabet.add(CONTROL_CHAR);
         observations.clear();
         model.clear();
+
+        LOGGER.log(Level.INFO,"beginning to ingest training data");
 
         rawWords.map(String::toLowerCase)
                 .map(String::trim)
@@ -174,6 +182,8 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             model.put(k,relativeProbabilities);
         });
         // model is now populated
+
+        LOGGER.log(Level.INFO, "finished training the Markov model on a dataset of {0} strings with a {1} character alphabet", new Object[]{datasetLength,alphabet.size()});
 
         return this;
     }
@@ -221,6 +231,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     Character nextChar = randomCharacter(newName.substring(newName.length() - order));
                     newName.append(nextChar);
                 } while (newName.charAt(newName.length() - 1) != CONTROL_CHAR);
+                LOGGER.log(Level.FINER,"new candidate text string generated, to be filtered: {0}", newName);
             } while(
                     // conditions for a re-roll
                     (newName.length() < minLength+order+1) ||
@@ -228,6 +239,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     ((endFilter != null) && (newName.indexOf(endFilter + CONTROL_CHAR) == -1))
             );
             //System.out.println(newName.substring(order,newName.length()-1));
+            LOGGER.log(Level.FINE,"new random text string generated and returned: {0}", newName);
             return newName.substring(order, newName.length() - 1); // strip off control characters
         }
     }
@@ -258,6 +270,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                 return c;
             }
         }
+        LOGGER.log(Level.WARNING,"something went wrong in generating a random character and a placeholder was used");
         return DANGER_CHAR; // this should never occur unless the prefix doesn't exist in the model
     }
 
