@@ -1,5 +1,8 @@
 package net.joeclark.proceduralgeneration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -9,6 +12,8 @@ import java.util.stream.Stream;
  * Draws a random name from a training dataset (but lowercase regardless of training data's case)
  */
 public class RandomDrawGenerator implements RandomTextGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger( RandomDrawGenerator.class );
 
     /** {@value}*/
     public static final int DEFAULT_MIN_LENGTH = 1;
@@ -105,6 +110,8 @@ public class RandomDrawGenerator implements RandomTextGenerator {
      */
     public RandomDrawGenerator train(Stream<String> rawWords) {
         this.wordList = rawWords.map(String::toLowerCase).collect(Collectors.toList());
+
+        logger.info("finished ingesting a dataset of {} text strings for random draws",wordList.size());
         return this;
     }
 
@@ -135,6 +142,7 @@ public class RandomDrawGenerator implements RandomTextGenerator {
             do {
                 // add control characters to indicate start and end of word
                 draw = CONTROL_CHAR + wordList.get(random.nextInt(wordList.size())).toLowerCase() + CONTROL_CHAR;
+                logger.trace("new candidate text string drawn, about to check filters: {}", draw);
             } while (
                 // conditions for a re-roll
                     (draw.length() < minLength + 2) ||
@@ -142,7 +150,9 @@ public class RandomDrawGenerator implements RandomTextGenerator {
                     ((startFilter != null) && (!draw.contains(CONTROL_CHAR + startFilter))) ||
                     ((endFilter != null) && (!draw.contains(endFilter + CONTROL_CHAR)))
             );
-            return draw.substring(1, draw.length() - 1); // strip off control characters
+            draw = draw.substring(1, draw.length() - 1); // strip off control characters
+            logger.debug("new random text string drawn and returned: {}", draw);
+            return draw;
         }
     }
 

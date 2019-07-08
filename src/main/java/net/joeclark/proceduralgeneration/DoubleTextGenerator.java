@@ -1,10 +1,15 @@
 package net.joeclark.proceduralgeneration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A RandomTextGenerator which combines the output of two other RandomTextGenerators.  This could be used, for example,
  * to combine a random first name and a random last name
  */
 public class DoubleTextGenerator implements RandomTextGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger( DoubleTextGenerator.class );
 
     private RandomTextGenerator firstStringGenerator;
     private RandomTextGenerator secondStringGenerator;
@@ -20,6 +25,7 @@ public class DoubleTextGenerator implements RandomTextGenerator {
         this.firstStringGenerator = first;
         this.secondStringGenerator = second;
         this.separator = (separator == null) ? " " : separator;
+        logger.info("Initialized new DoubleTextGenerator instance");
     }
 
     public void setSeparator(String separator) {
@@ -28,8 +34,9 @@ public class DoubleTextGenerator implements RandomTextGenerator {
 
     @Override
     public String generateOne() {
-        return firstStringGenerator.generateOne() + separator +
-                secondStringGenerator.generateOne();
+        String newText = firstStringGenerator.generateOne() + separator + secondStringGenerator.generateOne();
+        logger.debug("new random text string generated and returned: {}", newText);
+        return newText;
     }
 
 }
