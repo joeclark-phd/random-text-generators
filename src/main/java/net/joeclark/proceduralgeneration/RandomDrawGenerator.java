@@ -57,6 +57,7 @@ public class RandomDrawGenerator implements RandomTextGenerator {
      * <code>new RandomDrawGenerator.withMinLength(4).withMaxLength(12),train(streamOfStrings)</code>
      */
     public RandomDrawGenerator() {
+        logger.info("Initialized new RandomDrawGenerator instance");
     }
 
     /**
@@ -119,7 +120,7 @@ public class RandomDrawGenerator implements RandomTextGenerator {
      * @return true if the model was trained or re-trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
      */
     public boolean isTrained() {
-        return (this.wordList != null && this.wordList.size()>0);
+        return (this.wordList != null && !this.wordList.isEmpty());
     }
 
 

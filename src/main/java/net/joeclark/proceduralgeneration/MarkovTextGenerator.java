@@ -184,7 +184,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
         });
         // model is now populated
 
-        logger.info("finished training the Markov model on a dataset of {} strings with a {} character alphabet", new Object[]{datasetLength,alphabet.size()});
+        logger.info("finished training the Markov model on a dataset of {} strings with a {} character alphabet", datasetLength,alphabet.size());
         return this;
     }
 
