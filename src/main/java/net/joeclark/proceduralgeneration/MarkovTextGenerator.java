@@ -176,9 +176,9 @@ public class MarkovTextGenerator implements RandomTextGenerator {
             Map<Character,Long> frequencies = s.getValue().stream()
                     .collect(Collectors.groupingBy(c->c,Collectors.counting()));
             Map<Character,Double> relativeProbabilities = new HashMap<>();
-            alphabet.forEach( a -> {
-                relativeProbabilities.put(a, frequencies.containsKey(a) ? (double) frequencies.get(a) : prior);
-            });
+            alphabet.forEach( a ->
+                relativeProbabilities.put(a, frequencies.containsKey(a) ? (double) frequencies.get(a) : prior)
+            );
             model.put(k,relativeProbabilities);
         });
         // model is now populated
@@ -238,7 +238,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     (newName.length() > maxLength+order+1) ||
                     ((endFilter != null) && (newName.indexOf(endFilter + CONTROL_CHAR) == -1))
             );
-            //System.out.println(newName.substring(order,newName.length()-1));
             LOGGER.log(Level.FINE,"new random text string generated and returned: {0}", newName);
             return newName.substring(order, newName.length() - 1); // strip off control characters
         }
@@ -248,7 +247,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
         Map<Character,Double> bestModel = null;
         int o = order;
         // Find the highest-order model that exists given the last few characters.
-        // For example, if "jav" occurs in the training data, that model will exist;
+        // e.g, if "jav" occurs in the training data, that model will exist, but
         // if not, maybe there'll be a model for "av", failing that, "v" should have
         // a model (as will every individual character in the training data)
         while(bestModel==null && o>0) {
