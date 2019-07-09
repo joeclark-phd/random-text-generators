@@ -13,13 +13,13 @@ import java.util.stream.Stream;
  * implementation may be preferable if the input data has interesting uses of capitalization (such as names that
  * begin with "Mc" and "Mac" followed by capitals) that you want to re-generate.
  */
-public class MarkovCasePreservingTextGenerator extends MarkovTextGenerator {
+public class MarkovTextCasePreservingGenerator extends MarkovTextGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger( MarkovCasePreservingTextGenerator.class );
+    private static final Logger logger = LoggerFactory.getLogger( MarkovTextCasePreservingGenerator.class );
 
 
-    public MarkovCasePreservingTextGenerator() {
-        logger.info("initialized new MarkovCasePreservingTextGenerator instance");
+    public MarkovTextCasePreservingGenerator() {
+        logger.info("initialized new MarkovTextCasePreservingGenerator instance");
     }
 
 

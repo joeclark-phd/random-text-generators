@@ -10,8 +10,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("MarkovCasePreservingTextGenerator...")
-class MarkovCasePreservingTextGeneratorTest {
+@DisplayName("MarkovTextCasePreservingGenerator...")
+class MarkovTextCasePreservingGeneratorTest {
 
     MarkovTextGenerator mcptGenerator; // builder functions such as "train" return the superclass
 
@@ -26,13 +26,13 @@ class MarkovCasePreservingTextGeneratorTest {
     @Test
     @DisplayName("Can be instantiated and trained")
     void CanBeInstantiatedAndTrained() {
-        mcptGenerator = new MarkovCasePreservingTextGenerator().train(moreNames.stream());
+        mcptGenerator = new MarkovTextCasePreservingGenerator().train(moreNames.stream());
     }
 
     @Test
     @DisplayName("Can be instantiated and then trained later")
     void CanBeInstantiatedWithoutTraining() {
-        mcptGenerator = new MarkovCasePreservingTextGenerator();
+        mcptGenerator = new MarkovTextCasePreservingGenerator();
         mcptGenerator.train(moreNames.stream());
     }
 
@@ -42,7 +42,7 @@ class MarkovCasePreservingTextGeneratorTest {
 
         @BeforeEach
         void Instantiate() {
-            mcptGenerator = new MarkovCasePreservingTextGenerator()
+            mcptGenerator = new MarkovTextCasePreservingGenerator()
                     .withStartFilter("Z")
                     .withEndFilter("eus")
                     .train(moreNames.stream());
