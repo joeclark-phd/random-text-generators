@@ -22,6 +22,8 @@ Based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.rogu
 
 - A Bayesian prior probability is added to every character in the alphabet in every model, so some truly random character sequences not seen in the training data are possible.  The alphabet is inferred from the training data, so any UTF-8 characters should be possible.  Increase the default "prior" to increase the randomness.
 
+MarkovTextGenerator ignores case, converting your input text to lowercase and returning lowercase strings.
+
 ### MarkovCasePreservingTextGenerator
 
 A subclass of MarkovTextGenerator that learns and reproduces upper/lower case usage in the training data.  With a given dataset, this model may learn less effectively from the training data because it builds separate models for "A" and "a" (to give an example) instead of combining observations.  However, it may be preferable if the input data has interesting uses of capitalization (such as names that begin with "Mc" and "Mac" followed by capitals) that you want to re-generate.
@@ -29,6 +31,8 @@ A subclass of MarkovTextGenerator that learns and reproduces upper/lower case us
 ### RandomDrawGenerator
 
 This generator simply draws a String at random from a `Stream<String>` of data fed into it.  Useful, if not very sophisticated.  Like MarkovTextGenerator, it allows the consumer to specify a desired minimum length, maximum length, start string, or end string, to filter the randomly-drawn text.
+
+RandomDrawGenerator ignores case, converting your input text to lowercase and returning lowercase strings.
 
 ### DoubleTextGenerator
 
