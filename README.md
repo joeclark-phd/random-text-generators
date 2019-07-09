@@ -26,7 +26,7 @@ MarkovTextGenerator ignores case, converting your input text and filters to lowe
 
 ### MarkovCasePreservingTextGenerator
 
-A subclass of MarkovTextGenerator that learns and reproduces upper/lower case usage in the training data.  With a given dataset, this model may learn less effectively from the training data because it builds separate models for "A" and "a" (to give an example) instead of combining observations.  However, it may be preferable if the input data has interesting uses of capitalization (such as names that begin with "Mc" and "Mac" followed by capitals) that you want to re-generate.
+A subclass of MarkovTextGenerator that learns and reproduces upper/lower case usage in the training data.  With a given dataset, this model may learn less effectively from the training data because it builds separate models for "A" and "a" (to give an example) instead of combining observations.  However, it may be preferable if the input data has interesting uses of capitalization (such as names that begin with "Mc" and "Mac" followed by capitals) that you want to re-generate.  Any start/end filter(s) you configure will also be case-sensitive.
 
 ### RandomDrawGenerator
 
