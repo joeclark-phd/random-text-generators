@@ -8,7 +8,7 @@ The interface, **RandomTextGenerator**, could be used with more than one type of
  
 - `String generateOne()` yields a new, procedurally-generated text string.
 
-Currently there are three implementations of the interface: 
+Currently there are four implementations of the interface: 
 
 ### MarkovTextGenerator
 
@@ -21,6 +21,10 @@ Based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.rogu
 - It develops models of multiple "orders", that is, of multiple lengths of character sequences.  If the generator encounters a new sequence of three characters like "jav", it will first check if it has trained a model on that sequence.  If not, it will fall back to check if it has a model for "av", failing that, it will certainly have a model for what comes after "v".  I call this a 3rd-order model and it is the default.
 
 - A Bayesian prior probability is added to every character in the alphabet in every model, so some truly random character sequences not seen in the training data are possible.  The alphabet is inferred from the training data, so any UTF-8 characters should be possible.  Increase the default "prior" to increase the randomness.
+
+### MarkovCasePreservingTextGenerator
+
+A subclass of MarkovTextGenerator that learns and reproduces upper/lower case usage in the training data.  With a given dataset, this model may learn less effectively from the training data because it builds separate models for "A" and "a" (to give an example) instead of combining observations.  However, it may be preferable if the input data has interesting uses of capitalization (such as names that begin with "Mc" and "Mac" followed by capitals) that you want to re-generate.
 
 ### RandomDrawGenerator
 
