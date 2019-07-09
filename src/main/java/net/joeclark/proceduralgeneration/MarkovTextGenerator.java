@@ -29,19 +29,19 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     static final char CONTROL_CHAR = '\u001F';  // to indicate beginning and end of input; must not be in the data's alphabet
     static final char DANGER_CHAR = '\u001C';  // a character that should never occur, and would indicate a failure in randomCharacter()
 
-    private int order = DEFAULT_ORDER;
-    private double prior = DEFAULT_PRIOR;
-    private int minLength = DEFAULT_MIN_LENGTH;
-    private int maxLength = DEFAULT_MAX_LENGTH;
-    private String startFilter;
-    private String endFilter;
+    protected int order = DEFAULT_ORDER;
+    protected double prior = DEFAULT_PRIOR;
+    protected int minLength = DEFAULT_MIN_LENGTH;
+    protected int maxLength = DEFAULT_MAX_LENGTH;
+    protected String startFilter;
+    protected String endFilter;
     // todo: add a regex match option
-    private Random random = new Random();
+    protected Random random = new Random();
 
-    private int datasetLength;
-    private Set<Character> alphabet = new HashSet<>();
-    private Map<String, List<Character>> observations = new HashMap<>();
-    private Map<String, Map<Character,Double>> model = new HashMap<>();
+    protected int datasetLength;
+    protected Set<Character> alphabet = new HashSet<>();
+    protected Map<String, List<Character>> observations = new HashMap<>();
+    protected Map<String, Map<Character,Double>> model = new HashMap<>();
 
     /**
      * Initialize a new MarkovTextGenerator. A new instance begins with the default values for order, prior,
@@ -58,7 +58,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withRandom(Random random) {
-        this.random = random;
+        setRandom(random);
         return this;
     }
 
@@ -67,7 +67,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withOrder(int order) {
-        this.order = order;
+        setOrder(order);
         return this;
     }
 
@@ -76,7 +76,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withPrior(double prior) {
-        this.prior = prior;
+        setPrior(prior);
         return this;
     }
 
@@ -85,7 +85,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withMinLength(int minLength) {
-        this.minLength = minLength;
+        setMinLength(minLength);
         return this;
     }
 
@@ -94,7 +94,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withMaxLength(int maxLength) {
-        this.maxLength = maxLength;
+        setMaxLength(maxLength);
         return this;
     }
 
@@ -103,7 +103,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withStartFilter(String startFilter) {
-        this.startFilter = startFilter.toLowerCase();
+        setStartFilter(startFilter);
         return this;
     }
 
@@ -112,7 +112,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator withEndFilter(String endFilter) {
-        this.endFilter = endFilter.toLowerCase();
+        setEndFilter(endFilter);
         return this;
     }
 
@@ -173,7 +173,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     }
 
     // initial ingestion of training data, capturing observations of characters that follow each observed sequence of predecessor characters
-    private void makeObservations(Stream<String> rawWords) {
+    protected void makeObservations(Stream<String> rawWords) {
         rawWords.map(String::toLowerCase)
                 .map(String::trim)
                 .forEach( w -> {
@@ -184,7 +184,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     }
 
     // turn raw frequencies of observations into statistical relative probabilities, adding a Bayesian prior for each not-observed character
-    private void buildModelFromObservations() {
+    protected void buildModelFromObservations() {
         observations.forEach( (k,v) -> {
             Map<Character,Long> frequencies = v.stream()
                     .collect(Collectors.groupingBy(c->c,Collectors.counting()));
@@ -197,7 +197,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     }
 
     // used in training, runs once for each String in the training set to add to the observations map
-    private void analyzeWord(String word) {
+    protected void analyzeWord(String word) {
         StringBuilder wordb = new StringBuilder(word);
         wordb.append(CONTROL_CHAR);
         for(int o=1;o<=order;o++) {
