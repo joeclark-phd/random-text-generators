@@ -233,7 +233,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     newText.append(CONTROL_CHAR);
                 }
                 // initialize with startFilter rather than adding it later!
-                if(startFilter!=null) { newText.append(startFilter.toLowerCase()); }
+                if(startFilter!=null) { newText.append(startFilter); }
 
                 do {
                     Character nextChar = randomCharacter(newText.substring(newText.length() - order));

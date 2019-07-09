@@ -213,11 +213,27 @@ class MarkovTextGeneratorTest {
         }
 
         @Test
+        @DisplayName("will start with a lowercase string even if the startFilter input was uppercase")
+        void canStartWithGivenStringRegardlessOfInputCase() {
+            markovTextGenerator.setStartFilter("Z");
+            String name = markovTextGenerator.generateOne();
+            assertTrue(name.startsWith("z"),"random name didn't start with lowercase string");
+        }
+
+        @Test
         @DisplayName("can be specified to end with a given string")
         void canEndWithGivenString() {
             markovTextGenerator.setEndFilter("eus");
             String name = markovTextGenerator.generateOne();
             assertTrue(name.endsWith("eus"),"random name didn't end with given string");
+        }
+
+        @Test
+        @DisplayName("will end with a lowercase string even if the endFilter input was uppercase")
+        void canEndWithGivenStringRegardlessOfInputCase() {
+            markovTextGenerator.setEndFilter("EUS");
+            String name = markovTextGenerator.generateOne();
+            assertTrue(name.endsWith("eus"),"random name didn't end with lowercase string");
         }
 
         @Test
