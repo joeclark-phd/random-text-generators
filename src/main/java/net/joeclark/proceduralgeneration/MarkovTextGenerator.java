@@ -152,7 +152,6 @@ public class MarkovTextGenerator implements RandomTextGenerator {
      */
     public MarkovTextGenerator train(Stream<String> rawWords) {
 
-
         datasetLength = 0;
         alphabet.clear();
         alphabet.add(CONTROL_CHAR);
@@ -161,6 +160,20 @@ public class MarkovTextGenerator implements RandomTextGenerator {
 
         logger.info("beginning to ingest training data");
 
+        makeObservations(rawWords);
+        // alphabet is now populated
+        // observations map is now populated
+        // datasetLength is now set
+
+        buildModelFromObservations();
+        // model is now populated
+
+        logger.info("finished training the Markov model on a dataset of {} strings with a {} character alphabet", datasetLength,alphabet.size());
+        return this;
+    }
+
+    // initial ingestion of training data, capturing observations of characters that follow each observed sequence of predecessor characters
+    private void makeObservations(Stream<String> rawWords) {
         rawWords.map(String::toLowerCase)
                 .map(String::trim)
                 .forEach( w -> {
@@ -168,24 +181,19 @@ public class MarkovTextGenerator implements RandomTextGenerator {
                     analyzeWord(w);
                     datasetLength += 1;
                 });
-        // alphabet is now populated
-        // observations map is now populated
-        // datasetLength is now set
+    }
 
-        observations.entrySet().forEach( s -> {
-            String k = s.getKey();
-            Map<Character,Long> frequencies = s.getValue().stream()
+    // turn raw frequencies of observations into statistical relative probabilities, adding a Bayesian prior for each not-observed character
+    private void buildModelFromObservations() {
+        observations.forEach( (k,v) -> {
+            Map<Character,Long> frequencies = v.stream()
                     .collect(Collectors.groupingBy(c->c,Collectors.counting()));
             Map<Character,Double> relativeProbabilities = new HashMap<>();
             alphabet.forEach( a ->
-                relativeProbabilities.put(a, frequencies.containsKey(a) ? (double) frequencies.get(a) : prior)
+                    relativeProbabilities.put(a, frequencies.containsKey(a) ? (double) frequencies.get(a) : prior)
             );
             model.put(k,relativeProbabilities);
         });
-        // model is now populated
-
-        logger.info("finished training the Markov model on a dataset of {} strings with a {} character alphabet", datasetLength,alphabet.size());
-        return this;
     }
 
     // used in training, runs once for each String in the training set to add to the observations map
