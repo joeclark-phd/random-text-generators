@@ -16,6 +16,8 @@ Maven users, add this dependency to your POM:
       <version>1.0</version>
     </dependency>
 
+### RandomTextGenerator
+
 The package offers an interface, **RandomTextGenerator**, with a single method:
  
 - `String generateOne()` yields a new, procedurally-generated text string.
@@ -29,11 +31,15 @@ Currently there are four implementations of the interface:
 
 ### MarkovTextGenerator
 
+Quick start:
+
     RandomTextGenerator markov = new MarkovTextGenerator().train(myTextStream);
+    System.out.println(markov.generateOne());
     
 (or with all the optional configuration...)
 
     RandomTextGenerator markov = new MarkovTextGenerator().withStartFilter("J").withEndFilter("ia").withOrder(2).withPrior(0.01).withRandom(myRandom).train(myTextStream);
+    System.out.println(markov.generateOne());
 
 The big idea of Markov-chain random text generation is that you collect statistics on which characters follow other characters.  So if a particular language uses "th" a lot, "t" should often be followed by "h" in the randomly-generated text.  This class ingests a `Stream<String>` of training data to build up a Markov model, and uses it to generate new strings. However, the Markov-chain approach has a number of caveats:
 
@@ -53,22 +59,45 @@ A subclass of MarkovTextGenerator that learns and reproduces upper/lower case us
 
 ### RandomDrawGenerator
 
+Quick start:
+
+    RandomTextGenerator randomdraw = new RandomDrawGenerator().train(myTextStream);
+    System.out.println(randomdraw.generateOne());
+
+(or with all the optional configuration...)
+    
+    RandomTextGenerator randomdraw = new RandomDrawGenerator().withStartFilter("J").withEndFilter("ia").withRandom(myRandom).train(myTextStream);
+    System.out.println(randomdraw.generateOne());
+
 This generator simply draws a String at random from a `Stream<String>` of data fed into it.  Useful, if not very sophisticated.  Like MarkovTextGenerator, it allows the consumer to specify a desired minimum length, maximum length, start string, or end string, to filter the randomly-drawn text.
 
 RandomDrawGenerator ignores case, converting your input text and filters to lowercase and returning lowercase strings.
 
 ### DoubleTextGenerator
 
+Quick start:
+
+    RandomTextGenerator doubletext = new DoubleTextGenerator(
+            new MarkovTextGenerator().train(myFirstTextStream), // for example
+            new RandomDrawGenerator().train(myOtherTextStream),  // for example
+            "-"
+        );
+    System.out.println(doubletext.generateOne());
+
 This generator combines the output of two other RandomTextGenerators, which could be useful if you want to generate a combination of first name and last name, or a hyphenated name.  Its constructor takes two RandomDrawGenerators and a String separator (if null, a single space is used by default).
 
 
-## How to build and test
+## How to contribute
 
-If you have Java 8 and Maven installed:
+This package uses what I believe is the standard Maven file structure.  If you fork and clone the repo, your IDE should be able to locate the `pom.xml` and the source and test files.  To use maven to build and test it, simply
 
-    git clone https://github.com/joeclark-net/random-text-generators.git
-    cd random-text-generators
-    mvn test
+    mvn clean test
+    
+If you'd like to build the JARs and Javadocs, and install the repo to your computer's Maven repository, run
+
+    mvn clean install
+    
+To contribute new code, corrections, etc., go ahead and make a pull request.  New procedural generation algorithms would be welcomed (code them them as new classes implementing the RandomTextGenerator interface) as would new tests.  If you have a great dataset of training data, please contribute that to the [examples](https://github.com/joeclark-phd/procedural-generation-examples) repository.
 
 ## Examples
 
