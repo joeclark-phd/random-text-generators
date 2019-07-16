@@ -1,16 +1,39 @@
 # Random Text Generators by joeclark.net
 
+[![Maven Central](https://img.shields.io/maven-central/v/net.joeclark.proceduralgeneration/randomtextgenerators.svg)](https://repo1.maven.org/maven2/net/joeclark/proceduralgeneration/randomtextgenerators/1.0/)
+[![MIT License](https://img.shields.io/github/license/joeclark-phd/random-text-generators.svg)](https://choosealicense.com/licenses/mit/)
+
+
 This package defines an interface and implementation of a procedural random text generator that can be used, for example, to generate character or place names for an adventure game.
 
-## RandomTextGenerator
+## Usage
 
-The interface, **RandomTextGenerator**, could be used with more than one type of procedural generation method.  Its sole method is:
+Maven users, add this dependency to your POM:
+
+    <dependency>
+      <groupId>net.joeclark.proceduralgeneration</groupId>
+      <artifactId>randomtextgenerators</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+The package offers an interface, **RandomTextGenerator**, with a single method:
  
 - `String generateOne()` yields a new, procedurally-generated text string.
 
 Currently there are four implementations of the interface: 
 
+- MarkovTextGenerator
+- MarkovTextCasePreservingGenerator
+- RandomDrawGenerator
+- DoubleTextGenerator
+
 ### MarkovTextGenerator
+
+    RandomTextGenerator markov = new MarkovTextGenerator().train(myTextStream);
+    
+(or with all the optional configuration...)
+
+    RandomTextGenerator markov = new MarkovTextGenerator().withStartFilter("J").withEndFilter("ia").withOrder(2).withPrior(0.01).withRandom(myRandom).train(myTextStream);
 
 The big idea of Markov-chain random text generation is that you collect statistics on which characters follow other characters.  So if a particular language uses "th" a lot, "t" should often be followed by "h" in the randomly-generated text.  This class ingests a `Stream<String>` of training data to build up a Markov model, and uses it to generate new strings. However, the Markov-chain approach has a number of caveats:
 
