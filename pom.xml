@@ -119,6 +119,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <outputDirectory>docs</outputDirectory>
+                </configuration>
             </plugin>
 
             <plugin>
