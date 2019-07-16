@@ -6,7 +6,7 @@
 
     <groupId>net.joeclark.proceduralgeneration</groupId>
     <artifactId>randomtextgenerators</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>Random Text Generators by joeclark.net</name>
@@ -81,10 +81,6 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
     </distributionManagement>
 
 
