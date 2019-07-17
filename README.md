@@ -3,7 +3,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/net.joeclark.proceduralgeneration/randomtextgenerators.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.joeclark.proceduralgeneration%22%20AND%20a:%22randomtextgenerators%22)
 [![MIT License](https://img.shields.io/github/license/joeclark-phd/random-text-generators.svg)](https://github.com/joeclark-phd/random-text-generators/blob/master/LICENSE.md)
 
-API reference: [https://joeclark-phd.github.io/random-text-generators](https://joeclark-phd.github.io/random-text-generators/)
+API reference (Javadocs): [https://joeclark-phd.github.io/random-text-generators](https://joeclark-phd.github.io/random-text-generators/)
 
 This package defines an interface and implementation of a procedural random text generator that can be used, for example, to generate character or place names for an adventure game.
 
