@@ -26,7 +26,7 @@ The package offers an interface, **RandomTextGenerator**, with a single method:
 Currently there are four implementations of the interface: 
 
 - MarkovTextGenerator
-- MarkovTextCasePreservingGenerator
+  - MarkovTextCasePreservingGenerator
 - RandomDrawGenerator
 - DoubleTextGenerator
 
