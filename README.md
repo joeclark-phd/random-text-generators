@@ -39,7 +39,7 @@ Quick start:
     
 (or with all the optional configuration...)
 
-    RandomTextGenerator markov = new MarkovTextGenerator().withStartFilter("J").withEndFilter("ia").withOrder(2).withPrior(0.01).withRandom(myRandom).train(myTextStream);
+    RandomTextGenerator markov = new MarkovTextGenerator().withOrder(2).withPrior(0.01).withStartFilter("J").withEndFilter("ia").withMinLength(3).withMaxLength(15).withRandom(myRandom).train(myTextStream);
     System.out.println(markov.generateOne());
 
 The big idea of Markov-chain random text generation is that you collect statistics on which characters follow other characters.  So if a particular language uses "th" a lot, "t" should often be followed by "h" in the randomly-generated text.  This class ingests a `Stream<String>` of training data to build up a Markov model, and uses it to generate new strings. However, the Markov-chain approach has a number of caveats:
@@ -50,7 +50,7 @@ Based on an algorithm [described by JLund3 at RogueBasin](http://roguebasin.rogu
 
 - It develops models of multiple "orders", that is, of multiple lengths of character sequences.  If the generator encounters a new sequence of three characters like "jav", it will first check if it has trained a model on that sequence.  If not, it will fall back to check if it has a model for "av", failing that, it will certainly have a model for what comes after "v".  I call this a 3rd-order model and it is the default.
 
-- A Bayesian prior probability is added to every character in the alphabet in every model, so some truly random character sequences not seen in the training data are possible.  The alphabet is inferred from the training data, so any UTF-8 characters should be possible.  Increase the default "prior" to increase the randomness.
+- A Bayesian prior probability is added to every character in the alphabet in every model, so some truly random character sequences not seen in the training data are possible.  The alphabet is inferred from the training data, so any UTF-8 characters should be possible.  The default prior is a relative probability of 0.005.  Truly random output becomes more likely with a larger alphabet and with fewer trained character sequences, so you may want to play with this parameter: increase it to increase the randomness, or decrease it to make the output more like the training data.
 
 MarkovTextGenerator ignores case, converting your input text and filters to lowercase and returning lowercase strings.
 
@@ -67,7 +67,7 @@ Quick start:
 
 (or with all the optional configuration...)
     
-    RandomTextGenerator randomdraw = new RandomDrawGenerator().withStartFilter("J").withEndFilter("ia").withRandom(myRandom).train(myTextStream);
+    RandomTextGenerator randomdraw = new RandomDrawGenerator().withStartFilter("J").withEndFilter("ia").withMinLength(3).withMaxLength(15).withRandom(myRandom).train(myTextStream);
     System.out.println(randomdraw.generateOne());
 
 This generator simply draws a String at random from a `Stream<String>` of data fed into it.  Useful, if not very sophisticated.  Like MarkovTextGenerator, it allows the consumer to specify a desired minimum length, maximum length, start string, or end string, to filter the randomly-drawn text.
