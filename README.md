@@ -3,6 +3,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/net.joeclark.proceduralgeneration/randomtextgenerators.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.joeclark.proceduralgeneration%22%20AND%20a:%22randomtextgenerators%22)
 [![MIT License](https://img.shields.io/github/license/joeclark-phd/random-text-generators.svg)](https://github.com/joeclark-phd/random-text-generators/blob/master/LICENSE.md)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7311d1355e094c29a6e05fd352e0cae2)](https://www.codacy.com/app/joeclark-phd/random-text-generators?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joeclark-phd/random-text-generators&amp;utm_campaign=Badge_Grade)
+[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/joeclark-phd/random-text-generators.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/joeclark-phd/random-text-generators/context:java)
 
 API reference: [https://joeclark-phd.github.io/random-text-generators](https://joeclark-phd.github.io/random-text-generators/)
 
