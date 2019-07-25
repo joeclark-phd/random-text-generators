@@ -16,7 +16,7 @@ Maven users, add this dependency to your POM:
     <dependency>
       <groupId>net.joeclark.proceduralgeneration</groupId>
       <artifactId>randomtextgenerators</artifactId>
-      <version>1.0</version>
+      <version>1.0.1</version>
     </dependency>
 
 ### RandomTextGenerator
