@@ -43,6 +43,10 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     protected Map<String, List<Character>> observations = new HashMap<>();
     protected Map<String, Map<Character,Double>> model = new HashMap<>();
 
+    {
+        alphabet.add(CONTROL_CHAR);
+    }
+
     /**
      * Initialize a new MarkovTextGenerator. A new instance begins with the default values for order, prior,
      * minLength, maxLength, startFilter, and endFilter.  After initialization, you must train the model on a stream
@@ -146,17 +150,11 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     /**
      * Build the Markov chain model based on a training dataset.  Do this <i>after</i> setting the desired
      * order and prior, but <i>before</i> attempting to generate names.  If this function is called a second time,
-     * it will erase the prior model and train a new one on the new stream of input.
+     * it will add new observations to the existing model. This can be used to create "blended" models.
      * @param rawWords a Stream of training data, e.g. from a file.  your random text output will look like the input data
      * @return the same MarkovTextGenerator
      */
     public MarkovTextGenerator train(Stream<String> rawWords) {
-
-        datasetLength = 0;
-        alphabet.clear();
-        alphabet.add(CONTROL_CHAR);
-        observations.clear();
-        model.clear();
 
         logger.info("beginning to ingest training data");
 

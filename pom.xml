@@ -6,7 +6,7 @@
 
     <groupId>net.joeclark.proceduralgeneration</groupId>
     <artifactId>randomtextgenerators</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Random Text Generators by joeclark.net</name>

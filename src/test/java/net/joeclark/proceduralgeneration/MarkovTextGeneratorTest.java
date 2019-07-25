@@ -154,11 +154,11 @@ class MarkovTextGeneratorTest {
         }
 
         @Test
-        @DisplayName("can be re-trained afresh")
+        @DisplayName("can be trained twice for a blended model")
         void canBeRetrainedAfresh() {
             markovTextGenerator.train(Stream.of("Xavier","Xena","Xenophon","Xerxes"));
             assertTrue(markovTextGenerator.getAlphabet().contains('x'),"x was not added to the alphabet");
-            assertFalse(markovTextGenerator.getAlphabet().contains('j'),"j was not removed from the alphabet");
+            assertTrue(markovTextGenerator.getAlphabet().contains('j'),"j was not retained in the alphabet");
         }
 
         @Test
