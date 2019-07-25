@@ -7,6 +7,8 @@
 
 API reference: [https://joeclark-phd.github.io/random-text-generators](https://joeclark-phd.github.io/random-text-generators/)
 
+Example output: [https://github.com/joeclark-net/procedural-generation-examples](https://github.com/joeclark-phd/procedural-generation-examples)
+
 This package defines an interface and implementation of a procedural random text generator that can be used, for example, to generate character or place names for an adventure game.
 
 ## Usage
