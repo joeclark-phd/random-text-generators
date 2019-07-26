@@ -143,7 +143,7 @@ public class MarkovTextGenerator implements RandomTextGenerator {
     public String getEndFilter() { return endFilter; }
 
     /**
-     * @return true if the model was trained or re-trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
+     * @return true if the model was trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
      */
     public boolean isTrained() { return datasetLength > 0; }
 

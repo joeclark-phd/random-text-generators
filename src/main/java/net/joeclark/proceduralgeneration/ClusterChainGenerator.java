@@ -18,6 +18,9 @@ import java.util.stream.Stream;
  */
 public class ClusterChainGenerator implements RandomTextGenerator {
 
+    // TODO: implement a subclass that uses a Markov model to track *frequencies* of cluster sequences rather than simply drawing them at random
+    // TODO: implement a sub-subclass that does all that MarkovTextGenerator does: multi-order markov models, bayesian priors, etc.
+
     private static final Logger logger = LoggerFactory.getLogger( ClusterChainGenerator.class );
 
     /** {@value}*/
@@ -162,12 +165,9 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
 
     /**
-     * @return true if the model was trained or re-trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
+     * @return true if the model was trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
      */
-    public boolean isTrained() {
-        return false;
-        // TODO: implement
-    }
+    public boolean isTrained() { return datasetLength > 0; }
 
 
 
@@ -182,26 +182,62 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     @Override
     public String generateOne() {
 
-        // TODO: implement this
-
         if (!isTrained()) {
             throw new IllegalStateException("model has not yet been trained");
         } else {
-            String word;
+            StringBuilder word;
+            String returnText;
+
             do {
-                // add control characters to indicate start and end of word
-                word = CONTROL_CHAR + "foobar" + CONTROL_CHAR;
-                logger.trace("new candidate text string generated, about to check filters: {}", word);
+                // generate another word
+
+                // TODO: start with startFilter or throw exception if impossible
+
+                word = new StringBuilder();
+                word.append(CONTROL_CHAR);
+                Set<String> possibleClusters = clusterChain.get(String.valueOf(CONTROL_CHAR));
+                int i;
+                int pick;
+                boolean done = false;
+                while(done == false) {
+                    // draw another cluster
+
+                    // TODO: check if near maxLength and end gracefully
+                    // TODO: if near maxLength, and endFilter is in the possibleClusters, end with it
+
+                    i = 0;
+                    pick = random.nextInt(possibleClusters.size());
+                    for(String s: possibleClusters) {
+                        if (i==pick) {
+                            if (s.equals(String.valueOf(CONTROL_CHAR))) {
+                                done = true;
+                                break;
+                            }
+                            else {
+                                word.append(s);
+                                possibleClusters = clusterChain.get(s);
+                                break;
+                            }
+                        }
+                        i++;
+                    }
+
+                }
+
+                word.append(CONTROL_CHAR);
+                returnText = word.toString();
+
+                logger.trace("new candidate text string generated, about to check filters: {}", returnText);
             } while (
                 // conditions for a re-roll
-                    (word.length() < minLength + 2) ||
-                    (word.length() - 2 > maxLength) ||
-                    ((startFilter != null) && (!word.contains(CONTROL_CHAR + startFilter))) ||
-                    ((endFilter != null) && (!word.contains(endFilter + CONTROL_CHAR)))
+                    (returnText.length() < minLength + 2) ||
+                    (returnText.length() - 2 > maxLength) ||
+                    ((startFilter != null) && (!returnText.contains(CONTROL_CHAR + startFilter))) ||
+                    ((endFilter != null) && (!returnText.contains(endFilter + CONTROL_CHAR)))
             );
-            word = word.substring(1, word.length() - 1); // strip off control characters
-            logger.debug("new random text string drawn and returned: {}", word);
-            return word;
+            returnText = returnText.substring(1, returnText.length() - 1); // strip off control characters
+            logger.debug("new random text string generated and returned: {}", returnText);
+            return returnText;
         }
     }
 

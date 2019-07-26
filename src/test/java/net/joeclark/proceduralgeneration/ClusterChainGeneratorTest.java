@@ -1,6 +1,8 @@
 package net.joeclark.proceduralgeneration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -41,6 +43,30 @@ class ClusterChainGeneratorTest {
             e.printStackTrace();
         }
 
+    }
+
+    @DisplayName("Once trained...")
+    @Nested
+    class OnceTrained {
+
+        @BeforeEach
+        void Train() {
+            try(Stream<String> stream = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/romans.txt"))).lines()) {
+                clusterChainGenerator = new ClusterChainGenerator().train(stream);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @DisplayName("Can generate some random text")
+        @Test
+        void CanGenerateSomeRandomText() {
+
+            for(int i=0;i<100;i++) {
+                System.out.println( clusterChainGenerator.generateOne() );
+            }
+
+        }
 
     }
 
