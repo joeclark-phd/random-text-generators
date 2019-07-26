@@ -35,6 +35,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     // todo: add a regex match option
     private Random random = new Random();
 
+    // TODO: get more comprehensive lists of vowels and consonants, or ways to check if a character is one or the other
     private Set<Character> vowels = new HashSet<>(Arrays.asList('a','e','i','o','u','y'));
     private Set<Character> consonants = new HashSet<>(Arrays.asList('b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z'));
     // TODO: improve the algorithm so it knows that some characters like 'y' can play both vowel and consonant roles
@@ -76,7 +77,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     /**
      * @param random a Random number generator to be used in generating text
-     * @return the same RandomDrawGenerator
+     * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withRandom(Random random) {
         this.random = random;
@@ -85,7 +86,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     /**
      * @param minLength the minimum length of output text you'll accept
-     * @return the same RandomDrawGenerator
+     * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withMinLength(int minLength) {
         this.minLength = minLength;
@@ -94,7 +95,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     /**
      * @param maxLength the maximum length of output text you'll accept
-     * @return the same RandomDrawGenerator
+     * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withMaxLength(int maxLength) {
         this.maxLength = maxLength;
@@ -103,7 +104,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     /**
      * @param startFilter a String that the beginning of the output must match, for example, a letter you want it to start with
-     * @return the same RandomDrawGenerator
+     * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withStartFilter(String startFilter) {
         this.startFilter = startFilter.toLowerCase();
@@ -112,7 +113,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     /**
      * @param endFilter a String that the end of the output must match
-     * @return the same RandomDrawGenerator
+     * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withEndFilter(String endFilter) {
         this.endFilter = endFilter.toLowerCase();
@@ -120,8 +121,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     }
 
     /**
-     * Ingest a new set of training data, overwriting any data that was previously trained.  Subsequent random draws
-     * will be made from this data.
+     * Ingest a new set of training data.
      */
     public ClusterChainGenerator train(Stream<String> rawWords) {
         rawWords.map(String::toLowerCase)
@@ -166,20 +166,23 @@ public class ClusterChainGenerator implements RandomTextGenerator {
      */
     public boolean isTrained() {
         return false;
+        // TODO: implement
     }
 
 
 
 
     /**
-     * @return a random string from the training dataset (but lowercase). If you have set filters such
-     * as maximum and minimum length, or a starting and ending sequence, be careful that those filters are not
-     * impossible given the training data. You could end up with an infinite loop or an exception if your
+     * @return a randomly-generated text string built from cluster sequences from the training data. If you have set
+     * filters such as maximum and minimum length, or a starting and ending sequence, be careful that those filters
+     * are not impossible given the training data. You could end up with an infinite loop or an exception if your
      * conditions are impossible to satisfy.
      * @throws IllegalStateException if model has not been trained
      */
     @Override
     public String generateOne() {
+
+        // TODO: implement this
 
         if (!isTrained()) {
             throw new IllegalStateException("model has not yet been trained");
