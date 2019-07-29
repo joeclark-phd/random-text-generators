@@ -58,14 +58,47 @@ class ClusterChainGeneratorTest {
             }
         }
 
-        @DisplayName("Can generate some random text")
+//        @DisplayName("Can generate some random text")
+//        @Test
+//        void CanGenerateSomeRandomText() {
+//
+//            for(int i=0;i<100;i++) {
+//                System.out.println( clusterChainGenerator.generateOne() );
+//            }
+//
+//        }
+
+        @DisplayName("Can be returned with start and end filters set")
         @Test
-        void CanGenerateSomeRandomText() {
+        void CanBeReturnedWithFiltersSet() {
+            clusterChainGenerator = clusterChainGenerator.withStartFilter("Marc").withEndFilter("ion");
+        }
 
-            for(int i=0;i<100;i++) {
-                System.out.println( clusterChainGenerator.generateOne() );
-            }
+        @DisplayName("Starts with a specified startFilter")
+        @Test
+        void StartsWithASpecifiedStartFilter() {
+            String filter = "marc";
+            clusterChainGenerator.setStartFilter(filter);
+            String word = clusterChainGenerator.generateOne();
+            //System.out.println(word);
+            assertTrue(word.startsWith(filter),"Generated word didn't match startFilter.");
+        }
 
+        @DisplayName("Throws exception if startfilter is impossible to follow")
+        @Test
+        void ThrowsExceptionIfStartFilterIsImpossible() {
+            clusterChainGenerator.setStartFilter("mar!");
+            assertThrows(IllegalArgumentException.class,() -> clusterChainGenerator.generateOne());
+        }
+
+        @DisplayName("Ends with specified endFilter")
+        @Test
+        void EndsWithSpecifiedEndFilter() {
+            String filter = "ion";
+            clusterChainGenerator.setEndFilter(filter);
+            String word = clusterChainGenerator.generateOne();
+            //System.out.println(word);
+            assertTrue(word.endsWith(filter),"Generated word didn't match endFilter.");
         }
 
     }

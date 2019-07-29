@@ -3,6 +3,7 @@ package net.joeclark.proceduralgeneration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +35,9 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     private int minLength = DEFAULT_MIN_LENGTH;
     private int maxLength = DEFAULT_MAX_LENGTH;
     private String startFilter;
+    private List<String> startFilterClusters; // holds the startFilter broken down into clusters
     private String endFilter;
+    private List<String> endFilterClusters; // holds the endFilter broken down into clusters
     // todo: add a regex match option
     private Random random = new Random();
 
@@ -46,6 +49,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     private int datasetLength;
     private Map<String,Set<String>> clusterChain = new HashMap<>();
+    private int longestClusterLength;
 
     // for testing only
     Set<Character> getVowels() { return vowels; }
@@ -55,8 +59,16 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     // setters
     public void setMinLength(int minLength) { this.minLength = minLength; }
     public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
-    public void setStartFilter(String startFilter) { this.startFilter = startFilter.toLowerCase(); }
-    public void setEndFilter(String endFilter) { this.endFilter = endFilter.toLowerCase(); }
+    public void setStartFilter(String startFilter) {
+        this.startFilter = startFilter.toLowerCase();
+        // also break it down into an array of vowel/consonant clusters
+        startFilterClusters = clusterize(startFilter);
+    }
+    public void setEndFilter(String endFilter) {
+        this.endFilter = endFilter.toLowerCase();
+        // also break it down into an array of vowel/consonant clusters
+        endFilterClusters = clusterize(endFilter);
+    }
     public void setRandom(Random random) { this.random = random; }
     // getters
     public int getDatasetLength() { return datasetLength; }
@@ -65,6 +77,30 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     public String getStartFilter() { return startFilter; }
     public String getEndFilter() { return endFilter; }
 
+
+    /**
+     * Utility function to break a String down into a {@code List<String>} of its component clusters.  Used internally
+     * to pre-process the startFilter and endFilter, but may be of some use to consumers.
+     * @param original a String
+     * @return a List of vowel and consonant clusters in the order in which they were found
+     */
+    public List<String> clusterize(String original) {
+        List<String> clusters = new ArrayList<>();
+        StringBuilder newCluster = new StringBuilder();
+        char[] chars = original.toCharArray();
+        boolean vowelCluster = vowels.contains(chars[0]);
+        for(char c: chars) {
+            if( (vowels.contains(c)) == vowelCluster ) {
+                newCluster.append(c);
+            } else {
+                clusters.add(newCluster.toString());
+                newCluster = new StringBuilder();
+                vowelCluster = !vowelCluster;
+            }
+        }
+        clusters.add(newCluster.toString());
+        return clusters;
+    }
 
 
 
@@ -110,7 +146,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
      * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withStartFilter(String startFilter) {
-        this.startFilter = startFilter.toLowerCase();
+        setStartFilter(startFilter);
         return this;
     }
 
@@ -119,7 +155,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
      * @return the same ClusterChainGenerator
      */
     public ClusterChainGenerator withEndFilter(String endFilter) {
-        this.endFilter = endFilter.toLowerCase();
+        setEndFilter(endFilter);
         return this;
     }
 
@@ -153,6 +189,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
                 newCluster.append(c);
             } else {
                 clusterChain.computeIfAbsent(precedingCluster, k -> new HashSet<>()).add(newCluster.toString());
+                if (newCluster.length() > longestClusterLength) { longestClusterLength = newCluster.length(); }  // it's helpful to know the longest cluster length
                 precedingCluster = newCluster.toString();
                 newCluster = new StringBuilder();
                 newCluster.append(c);
@@ -160,6 +197,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
             }
         }
         clusterChain.computeIfAbsent(precedingCluster, k -> new HashSet<>()).add(String.valueOf(CONTROL_CHAR));
+        if (newCluster.length() > longestClusterLength) { longestClusterLength = newCluster.length(); }
         datasetLength += 1;
     }
 
@@ -191,19 +229,49 @@ public class ClusterChainGenerator implements RandomTextGenerator {
             do {
                 // generate another word
 
-                // TODO: start with startFilter or throw exception if impossible
-
+                Set<String> possibleClusters;
                 word = new StringBuilder();
                 word.append(CONTROL_CHAR);
-                Set<String> possibleClusters = clusterChain.get(String.valueOf(CONTROL_CHAR));
+
+                if (startFilterClusters != null) {
+                    // if a startFilter was defined, start the word with it
+                    word.append(startFilter);
+                    String lastStartCluster = startFilterClusters.get(startFilterClusters.size()-1);
+                    if( clusterChain.containsKey(lastStartCluster) ) {
+                        possibleClusters = clusterChain.get(lastStartCluster);
+                    } else {
+                        // last cluster in startFilter doesn't exist in our chain. it's impossible to proceed!
+                        throw new IllegalArgumentException("startFilter ends with a cluster that's not found in the training data");
+                    }
+                } else {
+                    possibleClusters = clusterChain.get(String.valueOf(CONTROL_CHAR));
+                }
+
                 int i;
                 int pick;
                 boolean done = false;
                 while(done == false) {
                     // draw another cluster
 
-                    // TODO: check if near maxLength and end gracefully
-                    // TODO: if near maxLength, and endFilter is in the possibleClusters, end with it
+                    if ( endFilterClusters != null ) {
+                        // if near maxLength, and endFilter is in the possibleClusters, end with it
+                        if ( word.length() + endFilter.length() > maxLength - longestClusterLength ) {
+                            if ( possibleClusters.contains(endFilterClusters.get(0)) ) {
+                                word.append(endFilter);
+                                done = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // if near maxlength, end if possible
+                        if ( word.length() > maxLength - longestClusterLength ) {
+                            if ( possibleClusters.contains(String.valueOf(CONTROL_CHAR)) ) {
+                                done = true;
+                                break;
+                            }
+                        }
+                    }
+
 
                     i = 0;
                     pick = random.nextInt(possibleClusters.size());
@@ -232,7 +300,6 @@ public class ClusterChainGenerator implements RandomTextGenerator {
                 // conditions for a re-roll
                     (returnText.length() < minLength + 2) ||
                     (returnText.length() - 2 > maxLength) ||
-                    ((startFilter != null) && (!returnText.contains(CONTROL_CHAR + startFilter))) ||
                     ((endFilter != null) && (!returnText.contains(endFilter + CONTROL_CHAR)))
             );
             returnText = returnText.substring(1, returnText.length() - 1); // strip off control characters
