@@ -28,7 +28,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     /** {@value}*/
     public static final int DEFAULT_MAX_LENGTH = 12;
 
-    static final char CONTROL_CHAR = '#';  // to indicate beginning and end of input; must not be in the data's alphabet
+    static final char CONTROL_CHAR = '\u001F';  // to indicate beginning and end of input; must not be in the data's alphabet
 
 
     private int minLength = DEFAULT_MIN_LENGTH;
