@@ -58,9 +58,6 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     private Map<String,Set<String>> clusterChain = new HashMap<>();
     private int longestClusterLength;
 
-    // for testing only
-    Set<Character> getVowels() { return vowels; }
-
 
     // setters
     public void setMinLength(int minLength) { this.minLength = minLength; }
@@ -81,6 +78,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     public int getDatasetLength() { return datasetLength; }
     public int getMaxLength() { return maxLength; }
     public int getMinLength() { return minLength; }
+    public Set<Character> getVowels() { return vowels; }
     public String getStartFilter() { return startFilter; }
     public String getEndFilter() { return endFilter; }
 
