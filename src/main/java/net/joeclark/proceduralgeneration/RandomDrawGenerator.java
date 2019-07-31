@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Draws a random name from a training dataset (but lowercase regardless of training data's case)
+ * Draws text strings at random from a training dataset (but lowercase regardless of training data's case)
  */
 public class RandomDrawGenerator implements RandomTextGenerator {
 

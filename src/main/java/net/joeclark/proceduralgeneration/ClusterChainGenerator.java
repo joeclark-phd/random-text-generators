@@ -15,7 +15,35 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Draws a random name from a training dataset (but lowercase regardless of training data's case)
+ * <p>A class that uses a vowel/consonant clustering algorithm to generate new random text.  Based loosely on
+ * <a href="http://roguebasin.roguelikedevelopment.org/index.php?title=Cluster_chaining_name_generator">an algorithm
+ * described by Kusigrosz at RogueBasin</a>, it scans input text for clusters of vowels and clusters of consonants,
+ * after converting it all to lowercase, keeping track of all clusters that have been observed to follow any given
+ * cluster.  For example, "Elizabeth" would yield clusters {@code #-e-l-i-z-a-b-e-th-# } and "Anne" would yield
+ * {@code #-a-nn-e-# } where "#" is a control character marking the start or end of a string. Internally we
+ * would keep track of the possible successors of each cluster, e.g.:</p>
+ *
+ * <pre>{@code # -> [e,a]
+ * e -> [l,th,#]
+ * a -> [b,nn]
+ * th -> [#]
+ * ...etc...}</pre>
+ *
+ * <p>The generateOne() method takes a random walk through the cluster chain, only following paths that were found
+ * in the training data.  To continue our example, a new string could begin with "e" or "a", with equal likelihood,
+ * an "e" could be followed by "l", by "th", or by the end of a string, and so on.  With this training dataset of only
+ * two words, you could get a few different results, e.g.:</p>
+ *
+ * <pre>{@code elizanneth
+ * abelizanne
+ * anneth
+ * ...etc...}</pre>
+ *
+ * <p>Each newly generated candidate string is compared to filters (minLength, maxLength, startsWith, endsWith)
+ * and returned if it passes. If the candidate string is filtered out, we generate another, until one passes.
+ * (Be aware that if you configure very difficult-to-match filters, generation time may increase greatly.  If you set
+ * up impossible-to-match filters, e.g. requiring characters that aren't in the training data set's alphabet, you will
+ * get an infinite loop.)</p>
  */
 public class ClusterChainGenerator implements RandomTextGenerator {
 
