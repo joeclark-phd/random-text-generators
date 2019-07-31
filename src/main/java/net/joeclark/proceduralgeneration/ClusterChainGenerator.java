@@ -24,10 +24,19 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger( ClusterChainGenerator.class );
 
+
     /** {@value}*/
     public static final int DEFAULT_MIN_LENGTH = 4;
     /** {@value}*/
     public static final int DEFAULT_MAX_LENGTH = 12;
+    /**
+     * A long list of characters I found on the Unicode table (unicode-table.com) which seem to be variants of a,e,i,o,u,y for various Latin-based alphabets.  This is the default alphabet for ClusterChainGenerator.  To change it, use .withVowels or .setVowels.
+     * 'a','à','á','â','ã','ä','å','ā','ă','ą','ǎ','æ','ǣ','ǟ','ǡ','ǻ','ǽ','ȁ','ȁ','ȧ','e','è','é','ê','ë','ē','ĕ','ė','ę','ě','ǝ','ɘ','ə','ɇ','ȅ','ȇ','ȩ','i','ì','í','î','ï','ĩ','ī','ĭ','į','ı','ĳ','ǐ','ȉ','ȋ','ɨ','ò','ó','ô','õ','ö','ø','ǿ','o','ō','ŏ','ő','œ','ǒ','ǫ','ǭ','ȍ','ȏ','ȫ','ȭ','ȯ','ȱ','u','ù','ú','ú','ü','ũ','ū','ŭ','ů','ű','ǔ','ǖ','ǘ','ǚ','ǜ','ų','ȕ','ȗ','y','ý','ÿ','ŷ','ȳ','ɏ','ʎ' */
+    public static final Character[] LATIN_VOWELS = {'a','à','á','â','ã','ä','å','ā','ă','ą','ǎ','æ','ǣ','ǟ','ǡ','ǻ','ǽ','ȁ','ȁ','ȧ','e','è','é','ê','ë','ē','ĕ','ė','ę','ě','ǝ','ɘ','ə','ɇ','ȅ','ȇ','ȩ','i','ì','í','î','ï','ĩ','ī','ĭ','į','ı','ĳ','ǐ','ȉ','ȋ','ɨ','ò','ó','ô','õ','ö','ø','ǿ','o','ō','ŏ','ő','œ','ǒ','ǫ','ǭ','ȍ','ȏ','ȫ','ȭ','ȯ','ȱ','u','ù','ú','ú','ü','ũ','ū','ŭ','ů','ű','ǔ','ǖ','ǘ','ǚ','ǜ','ų','ȕ','ȗ','y','ý','ÿ','ŷ','ȳ','ɏ','ʎ'};
+    /** 'a','e','i','o','u','y','w' */
+    public static final Character[] ENGLISH_VOWELS = {'a','e','i','o','u','y','w'};
+    // TODO: add a Greek vowel set
+    // TODO: add other language vowel sets
 
     static final char CONTROL_CHAR = '\u001F';  // to indicate beginning and end of input; must not be in the data's alphabet
 
@@ -41,10 +50,8 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     // todo: add a regex match option
     private Random random = new Random();
 
-    // TODO: get more comprehensive lists of vowels and consonants, or ways to check if a character is one or the other
-    private Set<Character> vowels = new HashSet<>(Arrays.asList('a','e','i','o','u','y'));
-    private Set<Character> consonants = new HashSet<>(Arrays.asList('b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z'));
-    // TODO: improve the algorithm so it knows that some characters like 'y' can play both vowel and consonant roles
+
+    private Set<Character> vowels = new HashSet<>(Arrays.asList(LATIN_VOWELS));
 
 
     private int datasetLength;
@@ -53,12 +60,12 @@ public class ClusterChainGenerator implements RandomTextGenerator {
 
     // for testing only
     Set<Character> getVowels() { return vowels; }
-    Set<Character> getConsonants() { return consonants; }
 
 
     // setters
     public void setMinLength(int minLength) { this.minLength = minLength; }
     public void setMaxLength(int maxLength) { this.maxLength = maxLength; }
+    public void setVowels(Character[] vowelset) { this.vowels = new HashSet<>(Arrays.asList(vowelset)); }
     public void setStartFilter(String startFilter) {
         this.startFilter = startFilter.toLowerCase();
         // also break it down into an array of vowel/consonant clusters
@@ -142,6 +149,15 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     }
 
     /**
+     * @param vowelset the set of Characters that will form vowel clusters and separate consonant clusters
+     * @return the same ClusterChainGenerator
+     */
+    public ClusterChainGenerator withVowels(Character[] vowelset) {
+        this.vowels = new HashSet<>(Arrays.asList(vowelset));
+        return this;
+    }
+
+    /**
      * @param startFilter a String that the beginning of the output must match, for example, a letter you want it to start with
      * @return the same ClusterChainGenerator
      */
@@ -165,11 +181,9 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     public ClusterChainGenerator train(Stream<String> rawWords) {
         rawWords.map(String::toLowerCase)
                 .map(String::trim)
-                .forEach( w -> {
-                    extractClusters(w);
-                });
+                .forEach(this::extractClusters);
 
-        System.out.println(clusterChain);
+        //System.out.println(clusterChain);
 
         logger.info("ingested a stream of training data. model derived from {} text strings containing {} clusters",datasetLength,clusterChain.size()-1);
         return this;
@@ -250,7 +264,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
                 int i;
                 int pick;
                 boolean done = false;
-                while(done == false) {
+                while(!done) {
                     // draw another cluster
 
                     if ( endFilterClusters != null ) {
@@ -279,13 +293,12 @@ public class ClusterChainGenerator implements RandomTextGenerator {
                         if (i==pick) {
                             if (s.equals(String.valueOf(CONTROL_CHAR))) {
                                 done = true;
-                                break;
                             }
                             else {
                                 word.append(s);
                                 possibleClusters = clusterChain.get(s);
-                                break;
                             }
+                            break;
                         }
                         i++;
                     }

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static net.joeclark.proceduralgeneration.ClusterChainGenerator.ENGLISH_VOWELS;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("ClusterChainGenerator...")
@@ -30,6 +31,18 @@ class ClusterChainGeneratorTest {
     void CanIngestStreamOfStrings() {
 
         new ClusterChainGenerator().train(moreNames.stream());
+
+    }
+
+    @DisplayName("Can be set up with optional configuration")
+    @Test
+    void CanBeSetUpWithOptionalConfiguration() {
+
+        new ClusterChainGenerator()
+                .withMaxLength(20)
+                .withMinLength(5)
+                .withVowels(ENGLISH_VOWELS)
+                .train(moreNames.stream());
 
     }
 
