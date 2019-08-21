@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,10 +84,9 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     private Set<Character> vowels = new HashSet<>(Arrays.asList(LATIN_VOWELS));
 
 
-    private int datasetLength;
-    private Map<String,Set<String>> clusterChain = new HashMap<>();
-    private int longestClusterLength;
 
+    private MultiOrderMarkovChain<String> clusterChain = new MultiOrderMarkovChain<>();
+    private Integer longestClusterLength = 0;
 
     // setters
     public void setMinLength(int minLength) { this.minLength = minLength; }
@@ -103,7 +104,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     }
     public void setRandom(Random random) { this.random = random; }
     // getters
-    public int getDatasetLength() { return datasetLength; }
+    public int getDatasetLength() { return clusterChain.getNumTrainedSequences(); }
     public int getMaxLength() { return maxLength; }
     public int getMinLength() { return minLength; }
     public Set<Character> getVowels() { return vowels; }
@@ -117,7 +118,9 @@ public class ClusterChainGenerator implements RandomTextGenerator {
      * @param original a String
      * @return a List of vowel and consonant clusters in the order in which they were found
      */
+    // TODO: test this alone
     public List<String> clusterize(String original) {
+        logger.trace("original string: {}",original);
         List<String> clusters = new ArrayList<>();
         StringBuilder newCluster = new StringBuilder();
         char[] chars = original.toCharArray();
@@ -128,11 +131,18 @@ public class ClusterChainGenerator implements RandomTextGenerator {
             } else {
                 clusters.add(newCluster.toString());
                 newCluster = new StringBuilder();
+                newCluster.append(c);
                 vowelCluster = !vowelCluster;
             }
         }
         clusters.add(newCluster.toString());
+        logger.trace("clusterized string: {}",clusters);
         return clusters;
+    }
+    private List<String> addControlChars(List<String> clusterlist) {
+        clusterlist.add(0,String.valueOf(CONTROL_CHAR));
+        clusterlist.add(String.valueOf(CONTROL_CHAR));
+        return clusterlist;
     }
 
 
@@ -205,47 +215,27 @@ public class ClusterChainGenerator implements RandomTextGenerator {
      * Ingest a new set of training data.
      */
     public ClusterChainGenerator train(Stream<String> rawWords) {
-        rawWords.map(String::toLowerCase)
-                .map(String::trim)
-                .forEach(this::extractClusters);
-
+        clusterChain.train(
+                rawWords
+                    .map(String::toLowerCase)
+                    .map(String::trim)
+                    .map(this::clusterize)
+                    .map(this::addControlChars)
+        );
         //System.out.println(clusterChain);
+        Optional<Integer> maxClusterLength = clusterChain.allKnownStates().stream().map(String::length).max( Comparator.comparing(Integer::valueOf) );
+        if( maxClusterLength.isPresent() ) { this.longestClusterLength = maxClusterLength.get(); }
 
-        logger.info("ingested a stream of training data. model derived from {} text strings containing {} clusters",datasetLength,clusterChain.size()-1);
+        logger.info("ingested a stream of training data. model derived from {} text strings containing {} clusters",clusterChain.getNumTrainedSequences(),clusterChain.getNumKnownState()-1);
         return this;
     }
 
-    private void extractClusters(String w) {
-
-        // we are building a map of preceding clusters to clusters that follow them
-        String precedingCluster = String.valueOf(CONTROL_CHAR);
-        StringBuilder newCluster = new StringBuilder();
-
-        char[] chars = w.toCharArray();
-        boolean vowelCluster = vowels.contains(chars[0]);
-
-        for(char c: chars) {
-            if( (vowels.contains(c)) == vowelCluster ) {
-                newCluster.append(c);
-            } else {
-                clusterChain.computeIfAbsent(precedingCluster, k -> new HashSet<>()).add(newCluster.toString());
-                if (newCluster.length() > longestClusterLength) { longestClusterLength = newCluster.length(); }  // it's helpful to know the longest cluster length
-                precedingCluster = newCluster.toString();
-                newCluster = new StringBuilder();
-                newCluster.append(c);
-                vowelCluster = !vowelCluster;
-            }
-        }
-        clusterChain.computeIfAbsent(precedingCluster, k -> new HashSet<>()).add(String.valueOf(CONTROL_CHAR));
-        if (newCluster.length() > longestClusterLength) { longestClusterLength = newCluster.length(); }
-        datasetLength += 1;
-    }
 
 
     /**
      * @return true if the model was trained. Don't attempt to generate names from an untrained model, or you'll get an InvalidStateException!
      */
-    public boolean isTrained() { return datasetLength > 0; }
+    public boolean isTrained() { return clusterChain.hasModel(); }
 
 
 
@@ -263,78 +253,44 @@ public class ClusterChainGenerator implements RandomTextGenerator {
         if (!isTrained()) {
             throw new IllegalStateException("model has not yet been trained");
         } else {
-            StringBuilder word;
+            String nextcluster;
             String returnText;
-
+            List<String> word;
+            int wordlength;
             do {
                 // generate another word
 
-                Set<String> possibleClusters;
-                word = new StringBuilder();
-                word.append(CONTROL_CHAR);
+                wordlength = 0;
+                word = new ArrayList<>( Arrays.asList( String.valueOf(CONTROL_CHAR) ) );
 
-                if (startFilterClusters != null) {
-                    // if a startFilter was defined, start the word with it
-                    word.append(startFilter);
-                    String lastStartCluster = startFilterClusters.get(startFilterClusters.size()-1);
-                    if( clusterChain.containsKey(lastStartCluster) ) {
-                        possibleClusters = clusterChain.get(lastStartCluster);
+                if ( startFilterClusters != null ) {
+                    if ( !clusterChain.allKnownStates().containsAll(startFilterClusters) ) {
+                        throw new IllegalArgumentException("startFilter contains cluster(s) not found in the training data");
                     } else {
-                        // last cluster in startFilter doesn't exist in our chain. it's impossible to proceed!
-                        throw new IllegalArgumentException("startFilter ends with a cluster that's not found in the training data");
+                        word.addAll(startFilterClusters);
                     }
-                } else {
-                    possibleClusters = clusterChain.get(String.valueOf(CONTROL_CHAR));
                 }
 
-                int i;
-                int pick;
-                boolean done = false;
-                while(!done) {
-                    // draw another cluster
-
-                    if ( endFilterClusters != null ) {
-                        // if near maxLength, and endFilter is in the possibleClusters, end with it
-                        if ( word.length() + endFilter.length() > maxLength - longestClusterLength ) {
-                            if ( possibleClusters.contains(endFilterClusters.get(0)) ) {
-                                word.append(endFilter);
-                                done = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        // if near maxlength, end if possible
-                        if ( word.length() > maxLength - longestClusterLength ) {
-                            if ( possibleClusters.contains(String.valueOf(CONTROL_CHAR)) ) {
-                                done = true;
-                                break;
-                            }
-                        }
-                    }
-
-
-                    i = 0;
-                    pick = random.nextInt(possibleClusters.size());
-                    for(String s: possibleClusters) {
-                        if (i==pick) {
-                            if (s.equals(String.valueOf(CONTROL_CHAR))) {
-                                done = true;
-                            }
-                            else {
-                                word.append(s);
-                                possibleClusters = clusterChain.get(s);
-                            }
+                while ( word.size()==1 || !word.get(word.size()-1).equals(String.valueOf(CONTROL_CHAR)) ) {
+                    // if near end and possible, add endfilter
+                    if (( endFilterClusters != null ) && (wordlength >= maxLength - longestClusterLength - endFilter.length() - 1)) {
+                        if (clusterChain.allPossibleNext(word.subList(word.size() - 1, word.size())).contains(endFilterClusters.get(0))) {
+                            // if it is possible for the last randomly drawn cluster to transition to the specified end filter, add it and exit the loop
+                            word.addAll(endFilterClusters);
+                            word.add(String.valueOf(CONTROL_CHAR));
                             break;
                         }
-                        i++;
                     }
 
+                    // draw another cluster
+                    nextcluster = clusterChain.unweightedRandomNext(word);
+                    word.add( nextcluster );
+                    wordlength += nextcluster.length();
+                    logger.debug("word under development: {}",word);
                 }
 
-                word.append(CONTROL_CHAR);
-                returnText = word.toString();
-
-                logger.trace("new candidate text string generated, about to check filters: {}", returnText);
+                returnText = String.join("",word);
+                logger.debug("new candidate text string generated, about to check filters: {}", returnText);
             } while (
                 // conditions for a re-roll
                     (returnText.length() < minLength + 2) ||
