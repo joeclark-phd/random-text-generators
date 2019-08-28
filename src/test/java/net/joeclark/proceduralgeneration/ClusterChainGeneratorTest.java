@@ -6,7 +6,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -139,6 +144,32 @@ class ClusterChainGeneratorTest {
             assertTrue(word.endsWith(filter),"Generated word didn't match endFilter.");
         }
 
+
+        @Test
+        @DisplayName("Can be serialized and deserialized")
+        void CanBeSerializedAndDeserialized() throws IOException, ClassNotFoundException {
+            clusterChainGenerator.setStartFilter("jo");
+
+            FileOutputStream fileOutputStream = new FileOutputStream("target/ccgenerator.ser");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(clusterChainGenerator);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+
+            FileInputStream fileInputStream = new FileInputStream("target/ccgenerator.ser");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            @SuppressWarnings("unchecked")
+            ClusterChainGenerator loadedGenerator = (ClusterChainGenerator) objectInputStream.readObject();
+            objectInputStream.close();
+
+            assertEquals(clusterChainGenerator.getStartFilter(),loadedGenerator.getStartFilter(),"startFilter was not preserved through serialization-deserialization");
+            assertEquals(clusterChainGenerator,loadedGenerator,"the serialized-deserialzed clusterChainGenerator is not .equals() to the original");
+            assertEquals(clusterChainGenerator.generateOne(),loadedGenerator.generateOne(),"random number generator was not preserved through serialization-deserialization");
+        }
+
+
     }
+
+
 
 }

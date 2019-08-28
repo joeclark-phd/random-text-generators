@@ -2,11 +2,14 @@ package net.joeclark.proceduralgeneration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -43,10 +46,22 @@ import java.util.stream.Stream;
  * up impossible-to-match filters, e.g. requiring characters that aren't in the training data set's alphabet, you will
  * get an infinite loop.)</p>
  */
-public class ClusterChainGenerator implements RandomTextGenerator {
-
+public class ClusterChainGenerator implements RandomTextGenerator, Serializable {
     private static final Logger logger = LoggerFactory.getLogger( ClusterChainGenerator.class );
+    private static final long serialVersionUID = 1L;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClusterChainGenerator that = (ClusterChainGenerator) o;
+        return minLength == that.minLength && maxLength == that.maxLength && Objects.equals(startFilter, that.startFilter) && Objects.equals(startFilterClusters, that.startFilterClusters) && Objects.equals(endFilter, that.endFilter) && Objects.equals(endFilterClusters, that.endFilterClusters) && Objects.equals(vowels, that.vowels) && Objects.equals(clusterChain, that.clusterChain) && Objects.equals(longestClusterLength, that.longestClusterLength);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(minLength, maxLength, startFilter, startFilterClusters, endFilter, endFilterClusters, vowels, clusterChain, longestClusterLength);
+    }
 
     /** {@value}*/
     public static final int DEFAULT_MIN_LENGTH = 4;
