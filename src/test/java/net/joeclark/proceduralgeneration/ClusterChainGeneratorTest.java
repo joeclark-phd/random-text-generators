@@ -34,6 +34,13 @@ class ClusterChainGeneratorTest {
 
     }
 
+    @DisplayName("Clusterizes strings as expected")
+    @Test
+    void ClusterizesStringsAsExpected() {
+        // the most likely thing that would break this test is if "y" was not treated as a vowel
+        assertEquals(Arrays.asList("sk","y","scr","a","p","e","rs"), new ClusterChainGenerator().clusterize("skyscrapers"),"clusterize() didn't work as expected");
+    }
+
     @DisplayName("Can be set up with optional configuration")
     @Test
     void CanBeSetUpWithOptionalConfiguration() {

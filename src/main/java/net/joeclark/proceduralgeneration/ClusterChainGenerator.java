@@ -45,9 +45,6 @@ import java.util.stream.Stream;
  */
 public class ClusterChainGenerator implements RandomTextGenerator {
 
-    // TODO: implement a subclass that uses a Markov model to track *frequencies* of cluster sequences rather than simply drawing them at random
-    // TODO: implement a sub-subclass that does all that MarkovTextGenerator does: multi-order markov models, bayesian priors, etc.
-
     private static final Logger logger = LoggerFactory.getLogger( ClusterChainGenerator.class );
 
 
@@ -114,7 +111,6 @@ public class ClusterChainGenerator implements RandomTextGenerator {
      * @param original a String
      * @return a List of vowel and consonant clusters in the order in which they were found
      */
-    // TODO: test this alone
     public List<String> clusterize(String original) {
         logger.trace("original string: {}",original);
         List<String> clusters = new ArrayList<>();
