@@ -2,18 +2,14 @@ package net.joeclark.proceduralgeneration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -212,6 +208,47 @@ public class ClusterChainGenerator implements RandomTextGenerator {
     }
 
     /**
+     * Sets the 'MaxOrder' parameter of the internal Markov chain.  The default is 3.  A higher maxOrder produces
+     * patterns more like the training data, but is slower and less random. See the documentation of
+     * net.joeclark.proceduralgeneration.MultiOrderMarkovChain to better understand the implementation.
+     * @param order the number of 'orders' of Markov chains to keep internally.
+     * @return the same ClusterChainGenerator
+     */
+    public ClusterChainGenerator withMaxOrder(int order) {
+        setMaxOrder(order);
+        return this;
+    }
+
+    public void setMaxOrder(int order) {
+        clusterChain.setMaxOrder(order);
+    }
+
+    /**
+     * Add or change a 'prior' relative probability for each sequence of clusters not seen in the training data, so some
+     * truly random generation of sequences not seen before is possible.  Values between 0.001 and 0.01 recommended.
+     * @param prior the prior probability to apply
+     * @return the same ClusterChainGenerator
+     */
+    public ClusterChainGenerator andAddPriors(Double prior) {
+        setPriors(prior);
+        return this;
+    }
+
+    /**
+     * Add priors, using the default value MultiOrderMarkovChain.DEFAULT_PRIOR.
+     * @return
+     */
+    public ClusterChainGenerator andAddPriors() {
+        setPriors(MultiOrderMarkovChain.DEFAULT_PRIOR);
+        return this;
+    }
+
+    public void setPriors(Double prior) {
+        clusterChain.removeWeakLinks();
+        clusterChain.addPriors(prior);
+    }
+
+    /**
      * Ingest a new set of training data.
      */
     public ClusterChainGenerator train(Stream<String> rawWords) {
@@ -222,7 +259,6 @@ public class ClusterChainGenerator implements RandomTextGenerator {
                     .map(this::clusterize)
                     .map(this::addControlChars)
         );
-        //System.out.println(clusterChain);
         Optional<Integer> maxClusterLength = clusterChain.allKnownStates().stream().map(String::length).max( Comparator.comparing(Integer::valueOf) );
         if( maxClusterLength.isPresent() ) { this.longestClusterLength = maxClusterLength.get(); }
 
@@ -283,7 +319,7 @@ public class ClusterChainGenerator implements RandomTextGenerator {
                     }
 
                     // draw another cluster
-                    nextcluster = clusterChain.unweightedRandomNext(word);
+                    nextcluster = clusterChain.weightedRandomNext(word);
                     word.add( nextcluster );
                     wordlength += nextcluster.length();
                     logger.debug("word under development: {}",word);

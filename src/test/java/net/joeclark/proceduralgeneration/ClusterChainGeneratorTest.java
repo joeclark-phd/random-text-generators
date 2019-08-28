@@ -46,6 +46,18 @@ class ClusterChainGeneratorTest {
 
     }
 
+    @DisplayName("Can set options in the internal MultiOrderMarkovChain")
+    @Test
+    void CanSetOptionsInTheInternalMarkovChain() {
+
+        new ClusterChainGenerator()
+                .withMaxLength(20)
+                .withMinLength(5)
+                .withMaxOrder(2)
+                .train(moreNames.stream())
+                .andAddPriors(0.004D);
+    }
+
     @DisplayName("Can be trained from a file")
     @Test
     void CanBeTrainedFromAFile() {
@@ -71,20 +83,26 @@ class ClusterChainGeneratorTest {
             }
         }
 
-//        @DisplayName("Can generate some random text")
-//        @Test
-//        void CanGenerateSomeRandomText() {
-//
-//            for(int i=0;i<100;i++) {
-//                System.out.println( clusterChainGenerator.generateOne() );
-//            }
-//
-//        }
+        @DisplayName("Can generate some random text")
+        @Test
+        void CanGenerateSomeRandomText() {
+
+            for(int i=0;i<100;i++) {
+                System.out.println( clusterChainGenerator.generateOne() );
+            }
+
+        }
 
         @DisplayName("Can be returned with start and end filters set")
         @Test
         void CanBeReturnedWithFiltersSet() {
             clusterChainGenerator = clusterChainGenerator.withStartFilter("Marc").withEndFilter("ion");
+        }
+
+        @DisplayName("Can have priors added")
+        @Test
+        void CanHavePriorsAdded() {
+            clusterChainGenerator.setPriors(0.003D);
         }
 
         @DisplayName("Starts with a specified startFilter")
