@@ -62,6 +62,41 @@ MarkovTextGenerator ignores case, converting your input text and filters to lowe
 
 A subclass of MarkovTextGenerator that learns and reproduces upper/lower case usage in the training data.  With a given dataset, this model may learn less effectively from the training data because it builds separate models for "A" and "a" (to give an example) instead of combining observations.  However, it may be preferable if the input data has interesting uses of capitalization (such as names that begin with "Mc" and "Mac" followed by capitals) that you want to re-generate.  Any start/end filter(s) you configure will also be case-sensitive.
 
+### ClusterChainGenerator
+
+Quick start:
+
+    ClusterChainGenerator ccgen = new ClusterChainGenerator().train(myTextStream);
+    System.out.println(ccgen.generateOne());
+    
+(or with all the optional configuration...)
+
+    ClusterChainGenerator ccgen = new ClusterChainGenerator().withMaxOrder(2).withStartFilter("J").withEndFilter("ia").withMinLength(3).withMaxLength(15).withRandom(myRandom).train(myTextStream).andAddPriors(0.01);
+    System.out.println(ccgen.generateOne());
+
+A class that uses a vowel/consonant clustering algorithm to generate new random text.  Based loosely on [an algorithm described by Kusigrosz at RogueBasin](http://roguebasin.roguelikedevelopment.org/index.php?title=Cluster_chaining_name_generator), it scans input text for clusters of vowels and clusters of consonants, after converting it all to lowercase, keeping track of all clusters that have been observed to follow any given cluster.  For example, "Elizabeth" would yield clusters `#-e-l-i-z-a-b-e-th-#` and "Anne" would yield `#-a-nn-e-#` where "`#`" is a control character marking the start or end of a string. 
+
+Much like MarkovTextGenerator, the implementation is based on a multi-order Markov chain (one difference is that priors aren't added by default and must be added explicitly after training). Internally we would keep track of the possible successors of each cluster, e.g.:
+
+```
+# -> [e,a]
+e -> [l,th,#]
+a -> [b,nn]
+th -> [#]
+...etc...
+```
+
+The `generateOne()` method takes a random walk through the cluster chain, only following paths that were found in the training data.  To continue our example, a new string could begin with "e" or "a", with equal likelihood, an "e" could be followed by "l", by "th", or by the end of a string, and so on.  With this training dataset of only two words, you could get a few different results, e.g.:
+
+```
+elizanneth
+abelizanne
+anneth
+...etc...
+```
+
+Each newly generated candidate string is compared to filters (minLength, maxLength, startsWith, endsWith) and returned if it passes.  If the candidate string is filtered out, we generate another, until one passes. (Be aware that if you configure very difficult-to-match filters, generation time may increase greatly.  If you set up impossible-to-match filters, e.g. requiring characters that aren't in the training data set's alphabet, you will get an infinite loop.
+
 ### RandomDrawGenerator
 
 Quick start:
@@ -144,3 +179,27 @@ An alternative strategy is simply to train the generator on a single-sex dataset
     ingeltorg        ingrta                           hromund          orleif
     
 Note that the **MarkovTextGenerator** automatically infers an alphabet from the training data, including Scandinavian characters that aren't on my keyboard.
+
+### ClusterChainGenerator examples
+
+The ClusterChainGenerator does what the MarkovTextGenerator does, but with clusters of consonants or vowels instead of individual characters.  Using the same training dataset of Roman names, I generated these 25 random Roman names in 83ms:
+
+    festus           minus            frumerinus      clodius          aebuteo
+    acitalina        docilusius       marcellus       rectus           placilius
+    tertulus         brictius         viber           nepius           salvian
+    burrus           stertinus        gordianus       sevtonius        protus
+    allobrogicus     didicus          christianus     quietus          hosidonax
+    
+## Release notes
+
+**Release 1.1**
+
+- added `ClusterChainGenerator`
+
+**Release 1.0.1**
+
+- `MarkovNameGenerator.train()` no longer clears the alphabet and model before running.  Therefore, you can now train a model on multiple input streams.
+
+**Release 1.0**
+
+- initial launch including `MarkovTextGenerator`, `RandomDrawGenerator`, and `DoubleTextGenerator`
