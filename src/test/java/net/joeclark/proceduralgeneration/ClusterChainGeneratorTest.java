@@ -95,15 +95,15 @@ class ClusterChainGeneratorTest {
             }
         }
 
-        @DisplayName("Can generate some random text")
-        @Test
-        void CanGenerateSomeRandomText() {
-
-            for(int i=0;i<100;i++) {
-                System.out.println( clusterChainGenerator.generateOne() );
-            }
-
-        }
+//        @DisplayName("Can generate some random text")
+//        @Test
+//        void CanGenerateSomeRandomText() {
+//
+//            for(int i=0;i<25;i++) {
+//                System.out.println( clusterChainGenerator.generateOne() );
+//            }
+//
+//        }
 
         @DisplayName("Can be returned with start and end filters set")
         @Test
