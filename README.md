@@ -31,6 +31,7 @@ Currently there are four implementations of the interface:
 
 - MarkovTextGenerator
 - MarkovTextCasePreservingGenerator
+- ClusterChainGenerator
 - RandomDrawGenerator
 - DoubleTextGenerator
 
