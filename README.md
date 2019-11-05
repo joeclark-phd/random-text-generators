@@ -27,7 +27,7 @@ The package offers an interface, **RandomTextGenerator**, with a single method:
  
 - `String generateOne()` yields a new, procedurally-generated text string.
 
-Currently there are four implementations of the interface: 
+Currently there are five implementations of the interface: 
 
 - MarkovTextGenerator
 - MarkovTextCasePreservingGenerator
